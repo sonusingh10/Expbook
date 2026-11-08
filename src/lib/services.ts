@@ -61,6 +61,16 @@ import type {
     ForgetPasswordRequest
 } from '@/models/forget_password.ts';
 import type {
+    SecurityInfoResponse,
+    SecurityEditRequest,
+    SecuritySetPriceRequest,
+    InvestmentTradeInfoResponse,
+    InvestmentTradeEditRequest,
+    InvestmentImportResponse,
+    InvestmentSummaryResponse,
+    SecurityPriceRefreshResponse
+} from '@/models/investment.ts'; // Expbook
+import type {
     ImportTransactionResponsePageWrapper
 } from '@/models/imported_transaction.ts';
 import type {
@@ -874,6 +884,45 @@ export default {
     },
     deleteTransactionTag: (req: TransactionTagDeleteRequest): ApiResponsePromise<boolean> => {
         return axios.post<ApiResponse<boolean>>('v1/transaction/tags/delete.json', req);
+    },
+    // Expbook: investments
+    getAllSecurities: (): ApiResponsePromise<SecurityInfoResponse[]> => {
+        return axios.get<ApiResponse<SecurityInfoResponse[]>>('v1/investments/securities/list.json');
+    },
+    addSecurity: (req: SecurityEditRequest): ApiResponsePromise<SecurityInfoResponse> => {
+        return axios.post<ApiResponse<SecurityInfoResponse>>('v1/investments/securities/add.json', req);
+    },
+    modifySecurity: (req: SecurityEditRequest): ApiResponsePromise<SecurityInfoResponse> => {
+        return axios.post<ApiResponse<SecurityInfoResponse>>('v1/investments/securities/modify.json', req);
+    },
+    deleteSecurity: (req: { id: string }): ApiResponsePromise<boolean> => {
+        return axios.post<ApiResponse<boolean>>('v1/investments/securities/delete.json', req);
+    },
+    setSecurityPrice: (req: SecuritySetPriceRequest): ApiResponsePromise<SecurityInfoResponse> => {
+        return axios.post<ApiResponse<SecurityInfoResponse>>('v1/investments/securities/set_price.json', req);
+    },
+    getInvestmentTrades: (securityId?: string): ApiResponsePromise<InvestmentTradeInfoResponse[]> => {
+        return axios.get<ApiResponse<InvestmentTradeInfoResponse[]>>('v1/investments/trades/list.json' + (securityId ? '?securityId=' + encodeURIComponent(securityId) : ''));
+    },
+    addInvestmentTrade: (req: InvestmentTradeEditRequest): ApiResponsePromise<InvestmentTradeInfoResponse> => {
+        return axios.post<ApiResponse<InvestmentTradeInfoResponse>>('v1/investments/trades/add.json', req);
+    },
+    modifyInvestmentTrade: (req: InvestmentTradeEditRequest): ApiResponsePromise<InvestmentTradeInfoResponse> => {
+        return axios.post<ApiResponse<InvestmentTradeInfoResponse>>('v1/investments/trades/modify.json', req);
+    },
+    deleteInvestmentTrade: (req: { id: string }): ApiResponsePromise<boolean> => {
+        return axios.post<ApiResponse<boolean>>('v1/investments/trades/delete.json', req);
+    },
+    importInvestmentTrades: (req: { csv: string, dryRun: boolean }): ApiResponsePromise<InvestmentImportResponse> => {
+        return axios.post<ApiResponse<InvestmentImportResponse>>('v1/investments/trades/import.json', req);
+    },
+    getInvestmentSummary: (): ApiResponsePromise<InvestmentSummaryResponse> => {
+        return axios.get<ApiResponse<InvestmentSummaryResponse>>('v1/investments/summary.json');
+    },
+    refreshSecurityPrices: (): ApiResponsePromise<SecurityPriceRefreshResponse> => {
+        return axios.post<ApiResponse<SecurityPriceRefreshResponse>>('v1/investments/prices/refresh.json', {}, {
+            timeout: 120000
+        } as ApiRequestConfig);
     },
     getAllTransactionTemplates: ({ templateType }: { templateType: number }): ApiResponsePromise<TransactionTemplateInfoResponse[]> => {
         return axios.get<ApiResponse<TransactionTemplateInfoResponse[]>>('v1/transaction/templates/list.json?templateType=' + templateType);

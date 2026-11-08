@@ -154,6 +154,26 @@ func (s *SecurityService) ModifySecurity(c core.Context, security *models.Securi
 			return errs.ErrSecuritySymbolAlreadyExists
 		}
 
+		// changing the currency would silently re-denominate recorded trades
+		current := &models.Security{}
+		found, err := sess.Where("uid=? AND deleted=? AND security_id=?", security.Uid, false, security.SecurityId).Get(current)
+
+		if err != nil {
+			return err
+		} else if !found {
+			return errs.ErrSecurityNotFound
+		}
+
+		if current.Currency != security.Currency {
+			hasTrades, err := sess.Cols("uid", "deleted", "security_id").Where("uid=? AND deleted=? AND security_id=?", security.Uid, false, security.SecurityId).Limit(1).Exist(&models.InvestmentTrade{})
+
+			if err != nil {
+				return err
+			} else if hasTrades {
+				return errs.ErrSecurityCurrencyCannotBeChanged
+			}
+		}
+
 		updatedRows, err := sess.ID(security.SecurityId).Cols("name", "symbol", "security_type", "currency", "price_source", "price_symbol", "comment", "updated_unix_time").Where("uid=? AND deleted=?", security.Uid, false).Update(security)
 
 		if err != nil {

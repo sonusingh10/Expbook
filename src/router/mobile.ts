@@ -33,6 +33,9 @@ import TransactionTagFilterSettingsPage from '@/views/mobile/settings/Transactio
 import SettingsPage from '@/views/mobile/SettingsPage.vue';
 import ApplicationLockPage from '@/views/mobile/ApplicationLockPage.vue';
 import ExchangeRatesListPage from '@/views/mobile/exchangerates/ListPage.vue';
+import InvestmentListPage from '@/views/mobile/investments/ListPage.vue'; // Expbook
+import InvestmentSecurityEditPage from '@/views/mobile/investments/SecurityEditPage.vue'; // Expbook
+import InvestmentTradeEditPage from '@/views/mobile/investments/TradeEditPage.vue'; // Expbook
 import ExchangeRatesUpdatePage from '@/views/mobile/exchangerates/UpdatePage.vue';
 import AboutPage from '@/views/mobile/AboutPage.vue';
 
@@ -276,6 +279,21 @@ const routes: Router.RouteParameters[] = [
     {
         path: '/app_lock',
         async: asyncResolve(ApplicationLockPage),
+        beforeEnter: [checkLogin]
+    },
+    {
+        path: '/investment/list', // Expbook
+        async: asyncResolve(InvestmentListPage),
+        beforeEnter: [checkLogin]
+    },
+    {
+        path: '/investment/security/edit', // Expbook
+        async: asyncResolve(InvestmentSecurityEditPage),
+        beforeEnter: [checkLogin]
+    },
+    {
+        path: '/investment/trade/edit', // Expbook
+        async: asyncResolve(InvestmentTradeEditPage),
         beforeEnter: [checkLogin]
     },
     {

@@ -2,6 +2,9 @@
     <f7-page ptr @ptr:refresh="reload" @page:afterin="onPageAfterIn">
         <f7-navbar>
             <f7-nav-title :title="tt('global.app.title')"></f7-nav-title>
+            <f7-nav-right>
+                <f7-link icon-f7="chart_line_uptrend_xyaxis" href="/investment/list" :aria-label="tt('Investments')"></f7-link>
+            </f7-nav-right>
         </f7-navbar>
 
         <overview-dashboard :layout="layout" :loading="loading" @navigate="onNavigate" />

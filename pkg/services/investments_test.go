@@ -486,3 +486,22 @@ func TestImportCurrencyMismatchWithExistingSecurity(t *testing.T) {
 	assert.Equal(t, 1, result.Failed)
 	assert.Contains(t, result.Rows[0].Message, "currency")
 }
+
+func TestSecurityCurrencyLockedOnceTradesExist(t *testing.T) {
+	c := setupInvestmentTestDb(t)
+
+	security := newSecurity(t, c, "LOCK", "INR")
+
+	// no trades yet: changing currency is fine
+	edit := &models.Security{SecurityId: security.SecurityId, Uid: testUid, Name: "Lock", Symbol: "LOCK", SecurityType: 1, Currency: "USD"}
+	assert.NoError(t, Securities.ModifySecurity(c, edit))
+
+	assert.NoError(t, InvestmentTrades.CreateTrade(c, newTrade(t, security, investments.TradeTypeBuy, 5, "1", "10", 0)))
+
+	edit = &models.Security{SecurityId: security.SecurityId, Uid: testUid, Name: "Lock", Symbol: "LOCK", SecurityType: 1, Currency: "EUR"}
+	assert.Equal(t, errs.ErrSecurityCurrencyCannotBeChanged, Securities.ModifySecurity(c, edit))
+
+	// other fields may still change when the currency stays the same
+	edit = &models.Security{SecurityId: security.SecurityId, Uid: testUid, Name: "Renamed", Symbol: "LOCK", SecurityType: 1, Currency: "USD"}
+	assert.NoError(t, Securities.ModifySecurity(c, edit))
+}

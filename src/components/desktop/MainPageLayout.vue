@@ -88,6 +88,17 @@
                                     </v-btn>
                                 </router-link>
 
+                                <router-link to="/investment/list"
+                                             :aria-current="isTopNavigationActive('/investment/list') ? 'page' : undefined">
+                                    <v-btn class="top-navigation-button ms-1" density="comfortable" variant="text"
+                                           :aria-label="tt('Investments')" :icon="true"
+                                           :active="isTopNavigationActive('/investment/list')"
+                                           :color="isTopNavigationActive('/investment/list') ? 'primary' : 'default'">
+                                        <v-icon :icon="isTopNavigationActive('/investment/list') ? mdiChartLine : mdiChartLineVariant" size="24" />
+                                        <v-tooltip activator="parent">{{ tt('Investments') }}</v-tooltip>
+                                    </v-btn>
+                                </router-link>
+
                                 <router-link class="d-inline-flex align-center" to="/transaction/list?pageType=0&dateType=7"
                                              v-if="showAddTransactionButtonInDesktopNavbar">
                                     <v-btn class="add-transaction-button ms-2" color="primary" density="comfortable" variant="flat"
@@ -208,6 +219,8 @@ import {
     mdiListBoxOutline,
     mdiCreditCard,
     mdiCreditCardOutline,
+    mdiChartLine,
+    mdiChartLineVariant,
     mdiChartPie,
     mdiChartPieOutline,
     mdiCompass,

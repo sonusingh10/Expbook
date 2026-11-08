@@ -20,6 +20,7 @@ import StatisticsTransactionPage from '@/views/desktop/statistics/TransactionPag
 import InsightsExplorerPage from '@/views/desktop/insights/ExplorerPage.vue';
 
 import AccountListPage from '@/views/desktop/accounts/ListPage.vue';
+import InvestmentListPage from '@/views/desktop/investments/ListPage.vue'; // Expbook
 
 import TransactionCategoryListPage from '@/views/desktop/categories/ListPage.vue';
 
@@ -163,6 +164,11 @@ const router = createRouter({
         {
             path: '/account/list',
             component: AccountListPage,
+            beforeEnter: checkLogin
+        },
+        {
+            path: '/investment/list', // Expbook
+            component: InvestmentListPage,
             beforeEnter: checkLogin
         },
         {
