@@ -18,4 +18,9 @@ const (
 	UUID_TYPE_TAG_GROUP     UuidType = 10
 	UUID_TYPE_CUSTOM_ICON   UuidType = 11
 	UUID_TYPE_IMPORT_PRESET UuidType = 12
+
+	// Expbook: investment types
+	UUID_TYPE_SECURITY         UuidType = 13
+	UUID_TYPE_INVESTMENT_TRADE UuidType = 14
+	UUID_TYPE_SECURITY_PRICE   UuidType = 15
 )

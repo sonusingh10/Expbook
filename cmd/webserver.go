@@ -467,6 +467,21 @@ func startWebServer(c *core.CliContext) error {
 			apiV1Route.POST("/transaction/tags/move.json", bindApi(api.TransactionTags.TagMoveHandler, config))
 			apiV1Route.POST("/transaction/tags/delete.json", bindApi(api.TransactionTags.TagDeleteHandler, config))
 
+			// Investments (Expbook)
+			apiV1Route.GET("/investments/securities/list.json", bindApi(api.Investments.SecurityListHandler, config))
+			apiV1Route.POST("/investments/securities/add.json", bindApi(api.Investments.SecurityCreateHandler, config))
+			apiV1Route.POST("/investments/securities/modify.json", bindApi(api.Investments.SecurityModifyHandler, config))
+			apiV1Route.POST("/investments/securities/delete.json", bindApi(api.Investments.SecurityDeleteHandler, config))
+			apiV1Route.POST("/investments/securities/set_price.json", bindApi(api.Investments.SecuritySetPriceHandler, config))
+			apiV1Route.GET("/investments/trades/list.json", bindApi(api.Investments.TradeListHandler, config))
+			apiV1Route.POST("/investments/trades/add.json", bindApi(api.Investments.TradeCreateHandler, config))
+			apiV1Route.POST("/investments/trades/modify.json", bindApi(api.Investments.TradeModifyHandler, config))
+			apiV1Route.POST("/investments/trades/delete.json", bindApi(api.Investments.TradeDeleteHandler, config))
+			apiV1Route.POST("/investments/trades/import.json", bindApi(api.Investments.TradeImportHandler, config))
+			apiV1Route.POST("/investments/trades/sync.json", bindApi(api.Investments.TradeSyncHandler, config))
+			apiV1Route.GET("/investments/summary.json", bindApi(api.Investments.SummaryHandler, config))
+			apiV1Route.POST("/investments/prices/refresh.json", bindApi(api.Investments.PriceRefreshHandler, config))
+
 			// Transaction Templates
 			apiV1Route.GET("/transaction/templates/list.json", bindApi(api.TransactionTemplates.TemplateListHandler, config))
 			apiV1Route.GET("/transaction/templates/get.json", bindApi(api.TransactionTemplates.TemplateGetHandler, config))

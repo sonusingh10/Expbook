@@ -47,6 +47,7 @@ const (
 	NormalSubcategoryTagGroup               = 19
 	NormalSubcategoryUserCustomIcon         = 20
 	NormalSubcategoryImportPreset           = 21
+	NormalSubcategoryInvestment             = 22 // Expbook
 )
 
 // Error represents the specific error returned to user

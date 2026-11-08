@@ -101,6 +101,17 @@ func updateAllDatabaseTablesStructure(c *core.CliContext) error {
 
 	log.BootInfof(c, "[database.updateAllDatabaseTablesStructure] transaction category table maintained successfully")
 
+	// Expbook: investment tables
+	for _, table := range []any{new(models.Security), new(models.SecurityPrice), new(models.InvestmentTrade)} {
+		err = datastore.Container.UserDataStore.SyncStructs(table)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	log.BootInfof(c, "[database.updateAllDatabaseTablesStructure] investment tables maintained successfully")
+
 	err = datastore.Container.UserDataStore.SyncStructs(new(models.TransactionTagGroup))
 
 	if err != nil {

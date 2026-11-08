@@ -30,3 +30,15 @@ var CreateScheduledTransactionJob = &CronJob{
 		return services.Transactions.CreateScheduledTransactions(c, time.Now().Unix(), c.GetInterval())
 	},
 }
+
+// RefreshSecurityPricesJob represents the cron job which periodically refreshes investment prices (Expbook)
+var RefreshSecurityPricesJob = &CronJob{
+	Name:        "RefreshSecurityPrices",
+	Description: "Periodically refresh the latest price of securities from their configured price source.",
+	Period: CronJobFixedHourPeriod{
+		Hour: 20,
+	},
+	Run: func(c *core.CronContext) error {
+		return services.InvestmentPrices.RefreshAllUsers(c)
+	},
+}
