@@ -1,0 +1,44 @@
+name: Design detect (Expbook)
+
+# Runs the Impeccable deterministic detector on the Expbook screens. It checks the rules in DESIGN.md
+# (fonts, radius tokens, type ramp, contrast patterns, nested cards, ...). The launcher downloads the engine
+# for the version pinned in .cursor/skills/impeccable/scripts/VERSION and verifies it against
+# engine-checksums.txt, so the job needs no secrets.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'DESIGN.md'
+      - 'PRODUCT.md'
+      - '.github/workflows/design-detect.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'DESIGN.md'
+      - 'PRODUCT.md'
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run the detector on the investment screens
+        run: |
+          set -eu
+          chmod +x .cursor/skills/impeccable/scripts/impeccable
+          .cursor/skills/impeccable/scripts/impeccable detect --json \
+            src/views/desktop/investments src/views/mobile/investments > detect.json
+          cat detect.json
+          # an empty list ("[]") means no findings; anything else fails the build
+          if [ "$(tr -d '[:space:]' < detect.json)" != "[]" ]; then
+            echo "::error::Impeccable detector reported design findings. Fix them or document the exception in DESIGN.md."
+            exit 1
+          fi

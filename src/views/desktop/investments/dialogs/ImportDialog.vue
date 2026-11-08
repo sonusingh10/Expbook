@@ -1,5 +1,5 @@
 <template>
-    <v-dialog width="860" :persistent="busy" v-model="showState">
+    <v-dialog width="860" :persistent="busy" :aria-label="tt('Import Trades from CSV')" v-model="showState">
         <one-column-dialog-layout :disabled="busy"
                                   :title="tt('Import Trades from CSV')"
                                   :cancel-button-title="tt('Close')"
@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import SnackBar from '@/components/desktop/SnackBar.vue';
 
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 
 import { useI18n } from '@/locales/helpers.ts';
 
@@ -223,6 +223,8 @@ function runImport(): void {
     });
 }
 
+let resolveFunc: (() => void) | null = null;
+
 function open(): Promise<void> {
     showState.value = true;
     busy.value = false;
@@ -231,12 +233,22 @@ function open(): Promise<void> {
     fileError.value = '';
     result.value = null;
 
-    return Promise.resolve();
+    return new Promise<void>(resolve => {
+        resolveFunc = resolve;
+    });
 }
 
 function close(): void {
     showState.value = false;
 }
+
+// Settle the promise on every kind of close so the caller can restore focus.
+watch(showState, value => {
+    if (!value) {
+        resolveFunc?.();
+        resolveFunc = null;
+    }
+});
 
 defineExpose({
     open

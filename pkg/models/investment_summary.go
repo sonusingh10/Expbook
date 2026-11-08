@@ -31,6 +31,7 @@ type InvestmentHoldingResponse struct {
 // InvestmentTotalsResponse is the portfolio total in the base currency, in minor units
 type InvestmentTotalsResponse struct {
 	Invested   int64    `json:"invested"`
+	PricedCost int64    `json:"pricedCost"`
 	Value      int64    `json:"value"`
 	Unrealised int64    `json:"unrealised"`
 	Realised   int64    `json:"realised"`
@@ -67,6 +68,7 @@ func ToInvestmentSummaryResponse(summary investments.Summary, ratesAvailable boo
 		UnconvertedCurrencies: summary.UnconvertedCurrencies,
 		Totals: &InvestmentTotalsResponse{
 			Invested:   summary.Totals.Invested,
+			PricedCost: summary.Totals.PricedCost,
 			Value:      summary.Totals.Value,
 			Unrealised: summary.Totals.Unrealised,
 			Realised:   summary.Totals.Realised,

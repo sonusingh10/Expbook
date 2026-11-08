@@ -1,8 +1,15 @@
+// Expbook: green and red are tuned for WCAG AA as small text on white, paper and tonal cards (>= 4.5:1).
 :root {
-    --ebk-amount-color-green: 0, 150, 136;
-    --ebk-amount-color-red: 212, 63, 63;
+    --ebk-amount-color-green: 0, 121, 107;
+    --ebk-amount-color-red: 200, 50, 50;
     --ebk-amount-color-yellow: 226, 182, 10;
     --ebk-amount-color-blue: 56, 115, 191;
+}
+
+// Lighter variants on dark surfaces (>= 4.5:1 on the dark card colour).
+.v-theme--dark {
+    --ebk-amount-color-green: 77, 182, 172;
+    --ebk-amount-color-red: 255, 120, 120;
 }
 
 :root.expense-amount-color-green {

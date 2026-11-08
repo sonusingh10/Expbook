@@ -1,10 +1,16 @@
+// Expbook: green and red are tuned for WCAG AA as small text (>= 4.5:1), with lighter variants on dark surfaces.
 :root {
-    --ebk-amount-color-green: 0, 150, 136;
-    --ebk-amount-color-red: 212, 63, 63;
+    --ebk-amount-color-green: 0, 121, 107;
+    --ebk-amount-color-red: 200, 50, 50;
     --ebk-amount-color-yellow: 226, 182, 10;
     --ebk-amount-color-blue: 56, 115, 191;
     --ebk-amount-color-black: 65, 57, 53;
     --ebk-amount-color-white: 250, 240, 237;
+}
+
+:root.dark {
+    --ebk-amount-color-green: 77, 182, 172;
+    --ebk-amount-color-red: 255, 120, 120;
 }
 
 :root.expense-amount-color-green .text-expense {

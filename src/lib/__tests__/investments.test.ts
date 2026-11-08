@@ -12,8 +12,58 @@ import {
     minorToMajorString,
     countImportRows,
     IMPORT_CSV_EXAMPLE,
-    IMPORT_CSV_HEADER
+    IMPORT_CSV_HEADER,
+    formatPrice,
+    formatQuantity,
+    unrealisedPercentOfPricedCost
 } from '@/lib/investments.ts';
+
+// A tiny stand-in for the app's grouped number formatter (en-US style).
+const group = (value: number): string => value.toLocaleString('en-US', { maximumFractionDigits: 8 });
+
+describe('formatPrice / formatQuantity', () => {
+    test('groups digits and keeps at least two decimals for prices', () => {
+        expect(formatPrice('7400000', group)).toBe('7,400,000.00');
+        expect(formatPrice('225.3', group)).toBe('225.30');
+        expect(formatPrice('1685.4', group)).toBe('1,685.40');
+    });
+
+    test('rounds long fractions half up to four decimals and drops trailing zeros', () => {
+        expect(formatPrice('1435.33333333', group)).toBe('1,435.3333');
+        expect(formatPrice('52.40001919', group)).toBe('52.40');
+        expect(formatPrice('0.12345', group)).toBe('0.1235');
+        expect(formatPrice('52.4050', group)).toBe('52.405');
+    });
+
+    test('quantities stay whole when whole and keep up to eight decimals', () => {
+        expect(formatQuantity('12', group)).toBe('12');
+        expect(formatQuantity('250.123', group)).toBe('250.123');
+        expect(formatQuantity('0.0125', group)).toBe('0.0125');
+        expect(formatQuantity('1000000', group)).toBe('1,000,000');
+        expect(formatQuantity('0.123456789', group)).toBe('0.12345679');
+    });
+
+    test('respects the locale decimal separator when padding', () => {
+        const european = (value: number): string => value.toLocaleString('de-DE', { maximumFractionDigits: 8 });
+        expect(formatPrice('1234.5', european, ',')).toBe('1.234,50');
+        expect(formatPrice('7400000', european, ',')).toBe('7.400.000,00');
+    });
+
+    test('empty values show a dash and junk is returned untouched', () => {
+        expect(formatPrice('', group)).toBe('-');
+        expect(formatPrice('abc', group)).toBe('abc');
+    });
+});
+
+describe('unrealisedPercentOfPricedCost', () => {
+    test('uses the cost of priced holdings only', () => {
+        expect(unrealisedPercentOfPricedCost(56510, 183295)).toBeCloseTo(30.83, 2);
+    });
+
+    test('is null when nothing has a price', () => {
+        expect(unrealisedPercentOfPricedCost(0, 0)).toBeNull();
+    });
+});
 
 describe('getValueSign / withExplicitSign', () => {
     test('classifies values', () => {

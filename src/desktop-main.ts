@@ -339,8 +339,9 @@ const vuetify = createVuetify({
             light: {
                 dark: false,
                 colors: {
-                    'primary': '#c67e48',
-                    'primary-darken-1': '#b67443',
+                    // Expbook: copper darkened from #c67e48 so white text on it reaches 4.5:1 (WCAG AA)
+                    'primary': '#a65f2d',
+                    'primary-darken-1': '#8f5126',
                     'on-primary': '#ffffff',
                     'secondary': '#8c8c8c',
                     'secondary-darken-1': '#595754',
@@ -354,6 +355,8 @@ const vuetify = createVuetify({
                     'warning': '#ff9500',
                     'warning-darken-1': '#de8201',
                     'on-warning': '#ffffff',
+                    // Expbook: amber that is readable as text (warning text on white and tonal surfaces)
+                    'warning-strong': '#8a4b00',
                     'error': '#ff3b30',
                     'error-darken-1': '#e1342b',
                     'on-error': '#ffffff',
@@ -412,7 +415,8 @@ const vuetify = createVuetify({
                 colors: {
                     'primary': '#c67e48',
                     'primary-darken-1': '#b67443',
-                    'on-primary': '#ffffff',
+                    // Expbook: dark ink on copper (white on this copper is only 3.2:1)
+                    'on-primary': '#1a1208',
                     'secondary': '#9d9b99',
                     'secondary-darken-1': '#3e3d3c',
                     'on-secondary': '#fff',
@@ -425,6 +429,7 @@ const vuetify = createVuetify({
                     'warning': '#ff9500',
                     'warning-darken-1': '#de8201',
                     'on-warning': '#ffffff',
+                    'warning-strong': '#ffb74d',
                     'error': '#ff3b30',
                     'error-darken-1': '#e1342b',
                     'on-error': '#ffffff',

@@ -20,6 +20,9 @@
 
     --ebk-icon-default-color: #000;
     --ebk-primary-color: 198, 126, 72;
+    // Expbook: readable (>= 4.5:1) caption and warning text for the investment screens
+    --ebk-muted-text-color: rgba(0, 0, 0, 0.62);
+    --ebk-warning-text-color: #8a4b00;
     --ebk-chevron-icon-color: rgba(0, 0, 0, 0.2);
     --ebk-transaction-tag-chip-bg-color: rgba(0, 0, 0, 0.04);
 }
@@ -31,6 +34,8 @@
     --f7-glass-shadow-fab: var(--f7-glass-shadow);
 
     --ebk-icon-default-color: #fff;
+    --ebk-muted-text-color: rgba(255, 255, 255, 0.65);
+    --ebk-warning-text-color: #ffb74d;
     --ebk-chevron-icon-color: rgba(255, 255, 255, 0.3);
     --ebk-transaction-tag-chip-bg-color: rgba(255, 255, 255, 0.04);
 }

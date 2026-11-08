@@ -67,6 +67,7 @@ func TestBuildSummaryFromDatabase(t *testing.T) {
 	// INFY: 10 x 120 = 1200.00 INR; AAPL: 2 x 60 = 120.00 USD = 12000.00 INR at 0.01 USD per INR
 	assert.Equal(t, int64(1200_00+12000_00), summary.Totals.Value)
 	assert.Equal(t, int64(1000_00+10000_00+10_00), summary.Totals.Invested, "cost of unpriced holdings is still invested capital")
+	assert.Equal(t, int64(1000_00+10000_00), summary.Totals.PricedCost, "the unrealised percentage must only use the cost of priced holdings")
 
 	resp := models.ToInvestmentSummaryResponse(summary, true)
 	warnings := map[string]string{}

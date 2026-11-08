@@ -47,8 +47,13 @@ Known unrelated failures: two upstream timezone tests in `pkg/utils` (`*_Ambiguo
 | US2 preview shows row-level errors, nothing saved; re-import creates 0 | `investments_test.go` (`TestImportDryRunWritesNothing`, `TestImportTwiceEqualsOnce`), smoke test | verified |
 | US3 refresh reports per-security success or failure | `investment_prices_test.go`, smoke test (failure path live) | verified |
 | US3 XIRR matches reference | `xirr_test.go` (Excel reference 0.373362535) | verified |
-| US4 net worth = accounts + investments with split visible | desktop investments page, first card | built; browser check in ux-pass |
+| US4 net worth = accounts + investments with split visible | desktop investments page, first figure (headless Chromium: "Accounts ₹ 0.00 · Investments ₹ 239,805.76" on a fresh account) | verified |
 | US5 dividend leaves quantity and average cost unchanged | `ledger_test.go` | verified |
 | SC-002 500-row import under 10 s | `TestImport500RowsIsFastAndIdempotent` (about 8 ms) | verified |
 | SC-005 summary with 5,000 trades under 2 s | `TestSummaryWith5000TradesIsFast` (about 17 ms) | verified |
-| SC-006 design checks | Impeccable critique and audit | ux-pass |
+| US1/US2 add, edit and import through the UI, light and dark, 1440 / 1024 / 768 / 390 px | headless Chromium walk-through, no console errors | verified |
+| Keyboard: focus visible, dialogs named, focus returns to the opener after Escape | headless Chromium (`aria-label` present, focus back on Add Trade / Import CSV, 2px ring) | verified |
+| Gain, warning and primary-button text meet WCAG AA | measured in browser: gain 5.32 / 7.13 (light / dark), warning 6.80 / 10.06, primary button 4.89 / 5.71 | verified |
+| SC-006 design checks | Impeccable critique (26/40 before fixes, all P1 fixed except CSV column mapping, see `specs/002-broker-sync`), detector reports 0 findings, runs in CI (`.github/workflows/design-detect.yml`) | verified |
+
+Known gaps after the UX pass: mobile has no Allocation tab, CSV import or net-worth figure; pull-to-refresh on mobile reloads data but does not refresh online prices; the mobile back link and form fields come from Framework7 and carry no extra accessible names; the CSV import accepts only the Expbook template (no column mapping yet).

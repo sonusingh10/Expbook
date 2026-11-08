@@ -1,5 +1,7 @@
 import type { BigDecimal, HiddenAmount, BigDecimalWithSuffix } from '@/core/numeral.ts';
 
+import Decimal from 'decimal.js';
+
 import { isBigDecimal } from '@/lib/numeral.ts';
 
 // Expbook: small pure helpers for the investment screens.
@@ -44,6 +46,61 @@ export function formatSignedPercent(value: number | null | undefined, isRatio: b
     }
 
     return (percent > 0 ? '+' : '-') + text + '%';
+}
+
+export type NumberFormatter = (value: number) => string;
+
+/**
+ * Formats a decimal string (a quantity, price or average cost) for display: rounded half up to `maxDecimals`,
+ * trailing zeros dropped down to `minDecimals`, and grouped like every other number in the app.
+ * The stored value is never changed; this is for reading only.
+ */
+export function formatUnitValue(value: string, maxDecimals: number, minDecimals: number, format: NumberFormatter, decimalSeparator: string = '.'): string {
+    if (!value) {
+        return '-';
+    }
+
+    let rounded: Decimal;
+
+    try {
+        rounded = new Decimal(value).toDecimalPlaces(maxDecimals, Decimal.ROUND_HALF_UP);
+    } catch {
+        return value;
+    }
+
+    const wanted = Math.max(minDecimals, rounded.decimalPlaces());
+    const text = format(rounded.toNumber());
+
+    if (wanted === 0) {
+        return text;
+    }
+
+    const separatorIndex = text.lastIndexOf(decimalSeparator);
+    const present = separatorIndex < 0 ? 0 : text.length - separatorIndex - decimalSeparator.length;
+
+    if (present >= wanted) {
+        return text;
+    }
+
+    return text + (separatorIndex < 0 ? decimalSeparator : '') + '0'.repeat(wanted - present);
+}
+
+/** Prices and average costs: 2 to 4 decimals. */
+export function formatPrice(value: string, format: NumberFormatter, decimalSeparator?: string): string {
+    return formatUnitValue(value, 4, 2, format, decimalSeparator);
+}
+
+/** Quantities: whole numbers stay whole, fractions keep up to 8 decimals (crypto and fund units). */
+export function formatQuantity(value: string, format: NumberFormatter, decimalSeparator?: string): string {
+    return formatUnitValue(value, 8, 0, format, decimalSeparator);
+}
+
+/**
+ * The unrealised percentage is measured against the cost of the holdings that actually have a price.
+ * Dividing by the cost of unpriced holdings too would understate the return.
+ */
+export function unrealisedPercentOfPricedCost(unrealised: number, pricedCost: number): number | null {
+    return pricedCost > 0 ? (unrealised / pricedCost) * 100 : null;
 }
 
 /** A price is stale when it is older than a few days, or when there is none at all. */

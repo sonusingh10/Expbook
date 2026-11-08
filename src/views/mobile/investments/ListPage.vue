@@ -52,11 +52,17 @@
                 </f7-list-item>
             </f7-list>
 
-            <f7-block class="no-margin-vertical text-color-orange" v-if="summary && !summary.ratesAvailable">
+            <f7-block class="no-margin-vertical ebk-mobile-warning" v-if="summary && !summary.ratesAvailable">
                 <small>{{ tt('Exchange rates are unavailable right now, so holdings in other currencies are left out of the totals.') }}</small>
             </f7-block>
-            <f7-block class="no-margin-vertical text-color-orange" v-else-if="summary && summary.unconvertedCurrencies.length">
+            <f7-block class="no-margin-vertical ebk-mobile-warning" v-else-if="summary && summary.unconvertedCurrencies.length">
                 <small>{{ tt('No exchange rate for') }} {{ summary.unconvertedCurrencies.join(', ') }}. {{ tt('These holdings are left out of the totals.') }}</small>
+            </f7-block>
+            <f7-block class="no-margin-vertical ebk-mobile-warning" v-if="missingPriceCount > 0">
+                <small>
+                    <template v-if="missingPriceCount === 1">{{ tt('One holding has no price yet, so its value and gain are not counted. Set a price or choose an online price source.') }}</template>
+                    <template v-else>{{ missingPriceCount }} {{ tt('holdings have no price yet, so their value is not counted. Set a price or choose an online price source.') }}</template>
+                </small>
             </f7-block>
 
             <f7-segmented strong tag="p" class="margin-horizontal margin-top">
@@ -73,21 +79,21 @@
                               @click="openHoldingActions(holding.securityId)">
                     <template #title>{{ holding.name }}</template>
                     <template #subtitle>
-                        <span class="ebk-mobile-numeric">{{ holding.symbol }} · {{ holding.quantity }}</span>
+                        <span class="ebk-mobile-numeric">{{ holding.symbol }} · {{ qty(holding.quantity) }}</span>
                     </template>
                     <template #after>
                         <div class="text-align-right ebk-mobile-numeric">
                             <div v-if="holding.priceAvailable && isHeld(holding)">{{ money(holding.value, holding.currency) }}</div>
-                            <div v-else-if="isHeld(holding)"><small>{{ tt('Set price') }}</small></div>
+                            <div v-else-if="isHeld(holding)"><small class="ebk-mobile-warning">{{ tt('Set price') }}</small></div>
                             <small :class="signClass(holding.unrealised)" v-if="holding.priceAvailable && isHeld(holding)">
                                 {{ signedMoney(holding.unrealised, holding.currency) }} · {{ formatSignedPercent(holding.unrealisedPercent, false) }}
                             </small>
-                            <small class="text-color-orange" v-else-if="holding.warning === 'no_exchange_rate'">{{ tt('No exchange rate') }}</small>
+                            <small class="ebk-mobile-warning" v-else-if="holding.warning === 'no_exchange_rate'">{{ tt('No exchange rate') }}</small>
                         </div>
                     </template>
                     <template #text>
-                        <small class="ebk-mobile-numeric" :class="{ 'text-color-orange': isStale(holding) }" v-if="holding.priceAvailable">
-                            {{ tt('Price') }} {{ holding.price }} {{ holding.currency }} · {{ isStale(holding) ? tt('Stale') + ' · ' : '' }}{{ formatDate(holding.priceTime) }}
+                        <small class="ebk-mobile-numeric" :class="isStale(holding) ? 'ebk-mobile-warning' : 'ebk-mobile-muted'" v-if="holding.priceAvailable">
+                            {{ tt('Price') }} {{ price(holding.price) }} {{ holding.currency }} · {{ isStale(holding) ? tt('Stale') + ' · ' : '' }}{{ formatDate(holding.priceTime) }}
                         </small>
                     </template>
                 </f7-list-item>
@@ -109,7 +115,7 @@
                         <span class="ebk-mobile-numeric">{{ tradeAmount(trade) }}</span>
                     </template>
                     <template #text>
-                        <small class="ebk-mobile-numeric" v-if="trade.tradeType !== 3">{{ trade.quantity }} × {{ trade.price }}</small>
+                        <small class="ebk-mobile-numeric ebk-mobile-muted" v-if="trade.tradeType !== 3">{{ qty(trade.quantity) }} × {{ price(trade.price) }}</small>
                     </template>
                     <f7-swipeout-actions :left="textDirection === TextDirection.RTL" :right="textDirection === TextDirection.LTR">
                         <f7-swipeout-button color="red" class="padding-horizontal" :aria-label="tt('Delete')" @click="confirmRemoveTrade(trade.id)">
@@ -178,6 +184,9 @@ import {
     getValueSign,
     withExplicitSign,
     formatSignedPercent,
+    formatPrice,
+    formatQuantity,
+    unrealisedPercentOfPricedCost,
     isPriceStale,
     isValidQuantityOrPrice
 } from '@/lib/investments.ts';
@@ -186,7 +195,7 @@ const props = defineProps<{
     f7router: Router.Router;
 }>();
 
-const { tt, getCurrentLanguageTextDirection, formatAmountToLocalizedNumeralsWithCurrency } = useI18n();
+const { tt, getCurrentLanguageTextDirection, formatAmountToLocalizedNumeralsWithCurrency, formatNumberToLocalizedNumerals, getCurrentDecimalSeparator } = useI18n();
 const { showToast, showPrompt } = useI18nUIComponents();
 
 const investmentStore = useInvestmentStore();
@@ -208,10 +217,20 @@ const holdings = computed<InvestmentHolding[]>(() => summary.value ? summary.val
 const selectedSecurity = computed(() => securityMap.value[selectedSecurityId.value]);
 const hasRefreshableSecurities = computed<boolean>(() => securities.value.some(s => s.priceSource && s.priceSource !== 'manual'));
 const realisedAndDividends = computed<number>(() => summary.value ? summary.value.totals.realised + summary.value.totals.dividends : 0);
+const missingPriceCount = computed<number>(() => holdings.value.filter(h => h.warning === 'no_price').length);
 const unrealisedPercent = computed<number | null>(() => {
     const totals = summary.value?.totals;
-    return totals && totals.invested > 0 ? (totals.unrealised / totals.invested) * 100 : null;
+    return totals ? unrealisedPercentOfPricedCost(totals.unrealised, totals.pricedCost) : null;
 });
+
+// Prices and average costs read as 2 to 4 decimals, quantities keep their fractions; stored values are unchanged.
+function price(value: string): string {
+    return formatPrice(value, number => formatNumberToLocalizedNumerals(number), getCurrentDecimalSeparator());
+}
+
+function qty(value: string): string {
+    return formatQuantity(value, number => formatNumberToLocalizedNumerals(number), getCurrentDecimalSeparator());
+}
 
 function money(minor: number, currency?: string): string {
     return formatAmountToLocalizedNumeralsWithCurrency(parseBigDecimal(minor), currency || summary.value?.baseCurrency);
@@ -401,6 +420,14 @@ reload();
 <style scoped>
 .ebk-mobile-numeric {
     font-variant-numeric: tabular-nums;
+}
+
+.ebk-mobile-muted {
+    color: var(--ebk-muted-text-color);
+}
+
+.ebk-mobile-warning {
+    color: var(--ebk-warning-text-color);
 }
 
 .ebk-mobile-large {

@@ -39,6 +39,19 @@ a:where(:not(
     outline: none;
 }
 
+// Expbook: keyboard focus must be visible (WCAG 2.4.7). Vuetify controls only tint on focus, which is too faint,
+// so buttons, tabs, links and list items get a 2px ring in the primary colour. Text fields keep their own focus border.
+.v-btn:focus-visible,
+.v-tab:focus-visible,
+.v-list-item:focus-visible,
+.v-chip--link:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible,
+[role='tab']:focus-visible {
+    outline: 2px solid rgb(var(--v-theme-primary));
+    outline-offset: 2px;
+}
+
 ::selection {
     background: rgba(var(--ebk-primary-color), 0.22);
 }

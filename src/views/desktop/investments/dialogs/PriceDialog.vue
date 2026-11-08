@@ -1,11 +1,11 @@
 <template>
-    <v-dialog width="420" :persistent="submitting" v-model="showState">
+    <v-dialog width="420" :persistent="submitting" :aria-label="tt('Set Price')" v-model="showState">
         <one-column-dialog-layout :disabled="submitting"
                                   :title="tt('Set Price')"
                                   :cancel-button-title="tt('Cancel')"
                                   @cancel="cancel">
             <template #toolbar>
-                <v-btn class="mx-2" density="comfortable" variant="outlined"
+                <v-btn class="mx-2" density="comfortable" color="primary" variant="flat"
                        :disabled="submitting || !valid" @click="confirm">
                     {{ tt('Save') }}
                     <v-progress-circular indeterminate size="22" class="ms-2" v-if="submitting"></v-progress-circular>
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import SnackBar from '@/components/desktop/SnackBar.vue';
 
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 
 import { useI18n } from '@/locales/helpers.ts';
 
@@ -101,6 +101,13 @@ function cancel(): void {
     rejectFunc?.();
     showState.value = false;
 }
+
+// Escape or a click outside closes the dialog without calling cancel(); settle the promise so the caller can restore focus.
+watch(showState, value => {
+    if (!value) {
+        rejectFunc?.();
+    }
+});
 
 defineExpose({
     open

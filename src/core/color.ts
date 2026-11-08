@@ -24,8 +24,10 @@ export class PresetAmountColor implements TypeAndName {
     public static readonly Blue = new PresetAmountColor(5, 'Blue', '#3873bf', '#3873bf', 'expense-amount-color-blue', 'income-amount-color-blue');
     public static readonly BlackOrWhite = new PresetAmountColor(4, 'Black or White', '#413935', '#fcf0e3', 'expense-amount-color-blackorwhite', 'income-amount-color-blackorwhite');
 
-    public static readonly DefaultExpenseColor = PresetAmountColor.Green;
-    public static readonly DefaultIncomeColor = PresetAmountColor.Red;
+    // Expbook: money coming in is green and going out is red (the usual convention for India and most markets).
+    // Upstream defaults to the opposite pairing; users can still choose either in Settings.
+    public static readonly DefaultExpenseColor = PresetAmountColor.Red;
+    public static readonly DefaultIncomeColor = PresetAmountColor.Green;
 
     public readonly type: number;
     public readonly name: string;

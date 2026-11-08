@@ -86,6 +86,7 @@ type Allocation struct {
 // Totals are portfolio totals in the base currency
 type Totals struct {
 	Invested   int64 // cost basis of units currently held
+	PricedCost int64 // the part of Invested that belongs to holdings with a price; the denominator of the unrealised percentage
 	Value      int64
 	Unrealised int64
 	Realised   int64
@@ -195,6 +196,7 @@ func BuildSummary(inputs []HoldingInput, base string, rates Rates, now int64) Su
 
 			if view.PriceAvailable {
 				value, _ := rates.Convert(valuation.Value, in.Currency, base)
+				summary.Totals.PricedCost += cost
 				summary.Totals.Value += value
 				summary.Totals.Unrealised += value - cost
 				typeValues[typeKey(in.Type)] += value

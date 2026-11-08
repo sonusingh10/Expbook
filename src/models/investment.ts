@@ -131,6 +131,7 @@ export interface InvestmentHolding {
 
 export interface InvestmentTotals {
     readonly invested: number;
+    readonly pricedCost: number;
     readonly value: number;
     readonly unrealised: number;
     readonly realised: number;

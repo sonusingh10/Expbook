@@ -3093,6 +3093,8 @@
     "Realised gain and dividends": "Realised gain and dividends",
     "Dividends": "Dividends",
     "Annualised return (XIRR)": "Annualised return (XIRR)",
+    "One holding has no price yet, so its value and gain are not counted. Set a price or choose an online price source.": "One holding has no price yet, so its value and gain are not counted. Set a price or choose an online price source.",
+    "on priced holdings only": "on priced holdings only",
     "Needs at least a year of history or a sale": "Needs at least a year of history or a sale",
     "Some prices could not be updated": "Some prices could not be updated",
     "Prices have been updated": "Prices have been updated",
