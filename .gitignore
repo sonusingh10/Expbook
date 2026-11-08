@@ -170,3 +170,6 @@ ezbookkeeping
 .agents/
 .cursor/skills/impeccable/scripts/bin/
 .impeccable/config.local.json
+
+# Python bytecode
+__pycache__/

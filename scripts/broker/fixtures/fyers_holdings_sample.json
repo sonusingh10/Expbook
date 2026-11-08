@@ -1,0 +1,7 @@
+{
+  "s": "ok",
+  "holdings": [
+    {"symbol": "NSE:DEMOTCS-EQ", "quantity": 8, "costPrice": 3200.25, "ltp": 3500},
+    {"symbol": "NSE:DEMOSOLD-EQ", "quantity": 0, "costPrice": 100, "ltp": 100}
+  ]
+}

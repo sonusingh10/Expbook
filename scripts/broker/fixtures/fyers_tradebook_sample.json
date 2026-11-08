@@ -1,0 +1,12 @@
+{
+  "s": "ok",
+  "tradeBook": [
+    {"symbol": "NSE:DEMOINFY-EQ", "side": 1, "tradedQty": 10, "tradePrice": 1400.5, "orderDateTime": "04-Oct-2025 10:15:02", "tradeNumber": "DEMO-T-1001", "orderNumber": "DEMO-O-1", "segment": 10},
+    {"symbol": "NSE:DEMOINFY-EQ", "side": 1, "tradedQty": 5, "tradePrice": 1500, "orderDateTime": "22-Apr-2026 09:20:40", "tradeNumber": "DEMO-T-1002", "orderNumber": "DEMO-O-2", "segment": 10},
+    {"symbol": "NSE:DEMOINFY-EQ", "side": -1, "tradedQty": 3, "tradePrice": 1650, "orderDateTime": "09-Sep-2026 14:05:11", "tradeNumber": "DEMO-T-1003", "orderNumber": "DEMO-O-3", "segment": 10},
+    {"symbol": "NSE:DEMONIFTYBEES-EQ", "side": 1, "tradedQty": 100, "tradePrice": 230.5, "orderDateTime": "12-Jan-2026 11:00:00", "tradeNumber": "DEMO-T-1004", "segment": 10},
+    {"symbol": "NSE:NIFTY26NOVFUT", "side": 1, "tradedQty": 75, "tradePrice": 24000, "orderDateTime": "03-Nov-2026 10:00:00", "tradeNumber": "DEMO-T-1005", "segment": 11},
+    {"symbol": "NSE:DEMOINFY-EQ", "side": 1, "tradedQty": 10, "tradePrice": 1400.5, "orderDateTime": "04-Oct-2025 10:15:02", "tradeNumber": "DEMO-T-1001", "segment": 10},
+    {"symbol": "NSE:DEMOBAD-EQ", "side": 0, "tradedQty": 1, "tradePrice": 10, "orderDateTime": "04-Oct-2025 10:15:02", "tradeNumber": "DEMO-T-1006", "segment": 10}
+  ]
+}
