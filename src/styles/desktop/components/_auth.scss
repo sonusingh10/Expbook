@@ -1,0 +1,153 @@
+.auth-logo {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 2rem;
+    inset-inline-start: 2rem;
+
+    img {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+.auth-app-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+    align-self: center;
+}
+
+.auth-wrapper {
+    min-height: calc(var(--vh, 1vh) * 100);
+}
+
+.auth-card {
+    border-radius: var(--ebk-radius-xl);
+    background: rgb(var(--v-theme-surface));
+    box-shadow: -1rem 0 3rem rgba(var(--ebk-shadow-color), 0.035);
+}
+
+.auth-message,
+.auth-links,
+.auth-powered-by {
+    color: rgba(var(--v-theme-on-surface), 0.8);
+}
+
+.auth-footer {
+    color: rgba(var(--v-theme-on-surface), 0.8);
+}
+
+.auth-image-background {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 82% 16%, rgba(var(--v-theme-primary), 0.08), transparent 22rem),
+        linear-gradient(145deg, rgba(var(--v-theme-primary), 0.025), transparent 52%),
+        rgb(var(--ebk-auth-background));
+
+    &::before,
+    &::after {
+        position: absolute;
+        z-index: 0;
+        border-radius: 50%;
+        content: '';
+        pointer-events: none;
+    }
+
+    &::before {
+        width: clamp(13rem, 30vw, 30rem);
+        height: clamp(13rem, 30vw, 30rem);
+        background: rgba(var(--v-theme-primary), 0.06);
+        inset-block-start: -18%;
+        inset-inline-start: -9.5rem;
+    }
+
+    &::after {
+        width: clamp(9rem, 23vw, 21rem);
+        height: clamp(9rem, 23vw, 21rem);
+        background: rgba(var(--v-theme-primary), 0.045);
+        inset-block-end: -6rem;
+        inset-inline-end: -6.5rem;
+    }
+}
+
+.auth-img-footer {
+    position: absolute;
+    min-width: 100%;
+    inset-block-end: 0;
+}
+
+@media (max-width: 959px) and (max-height: 669px) {
+    .auth-card {
+        padding-block-start: var(--ebk-navbar-height) !important;
+    }
+}
+
+@media (max-width: 959px) {
+    .auth-image-background {
+        display: none !important;
+    }
+
+    .auth-card {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+}
+
+/* Illustration for auth pages */
+.auth-illustration {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    isolation: isolate;
+
+    .auth-illustration__art {
+        width: min(88%, 47rem);
+        max-height: min(86vh, 47rem);
+        overflow: visible;
+        transform: scale(1.12);
+    }
+
+    .auth-illustration__backdrop { fill: rgba(var(--v-theme-primary), 0.055); }
+    .auth-illustration__paper { fill: rgb(var(--ebk-surface-raised)); stroke: rgba(var(--ebk-border), 0.09); stroke-width: 1; }
+    .auth-illustration__soft { fill: rgba(var(--v-theme-primary), 0.09); }
+    .auth-illustration__tint { fill: rgba(var(--v-theme-primary), 0.15); }
+    .auth-illustration__accent { fill: rgb(var(--v-theme-primary)); }
+    .auth-illustration__muted { fill: rgba(var(--v-theme-on-surface), 0.25); }
+    .auth-illustration__ink { fill: rgba(var(--v-theme-on-surface), 0.55); }
+    .auth-illustration__rule { fill: rgba(var(--v-theme-on-surface), 0.1); }
+    .auth-illustration__fine { fill: none; stroke: rgba(var(--v-theme-on-surface), 0.12); }
+    .auth-illustration__accent-outline { fill: none; stroke: rgb(var(--v-theme-primary)); }
+    .auth-illustration__on-accent { fill: none; stroke: rgb(var(--v-theme-on-primary)); }
+    .auth-illustration__shadow { filter: drop-shadow(0 4px 7px rgba(var(--ebk-shadow-color), 0.065)); }
+
+    @media (max-height: 720px) and (min-width: 960px) {
+        .auth-illustration__art {
+            width: min(80%, 40rem);
+            max-height: 88vh;
+        }
+    }
+
+    &.auth-illustration--signup .auth-illustration__art {
+        width: min(92%, 32rem);
+        height: auto;
+        max-height: min(82vh, 46rem);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .auth-illustration__scene {
+            animation: auth-illustration-enter 480ms cubic-bezier(0.2, 0, 0, 1) both;
+            transform-origin: center;
+        }
+    }
+
+    @keyframes auth-illustration-enter {
+        from { opacity: 0; transform: translateY(10px) scale(0.985); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+}
