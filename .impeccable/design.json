@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T21:00:00Z",
+  "title": "Design System: Expbook",
+  "extensions": {
+    "colorMeta": {
+      "copper-primary": { "role": "primary", "displayName": "Copper", "canonical": "#c67e48", "tonalRamp": ["#3b2411", "#5a3819", "#7d5024", "#9f6633", "#c67e48", "#d79b70", "#e6bc9b", "#f4ddca"] },
+      "paper-background": { "role": "neutral", "displayName": "Paper", "canonical": "#faf8f4", "tonalRamp": ["#2a2623", "#413935", "#6b625b", "#948b84", "#c2bab2", "#e2dcd4", "#f1ede6", "#faf8f4"] },
+      "ledger-teal": { "role": "tertiary", "displayName": "Ledger Teal", "canonical": "#009688", "tonalRamp": ["#00302c", "#004d46", "#006e64", "#009688", "#33ab9f", "#66c0b7", "#99d5cf", "#ccebe7"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Net worth and one headline figure per dashboard." },
+      "body": { "displayName": "Body", "purpose": "Default text and table cells, tabular numerals for amounts." }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 2px rgba(68,48,34,0.05), 0 3px 10px rgba(68,48,34,0.035)", "purpose": "Resting cards." },
+      { "name": "shadow-md", "value": "0 7px 24px rgba(68,48,34,0.1)", "purpose": "Menus and popovers." },
+      { "name": "shadow-lg", "value": "0 16px 44px rgba(68,48,34,0.16)", "purpose": "Dialogs." }
+    ],
+    "motion": [
+      { "name": "transition-fast", "value": "150ms ease", "purpose": "Hover and focus changes." },
+      { "name": "transition-base", "value": "200ms cubic-bezier(0.2, 0, 0, 1)", "purpose": "Panels, drawers and layout shifts." }
+    ],
+    "breakpoints": [
+      { "name": "desktop-wide", "value": "1145px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single main action on a view.",
+      "html": "<button class=\"ds-btn-primary\">Save trade</button>",
+      "css": ".ds-btn-primary { background: #c67e48; color: #fff; padding: 10px 20px; border: none; border-radius: 10px; font: 500 15px Inter, sans-serif; cursor: pointer; transition: background 150ms ease; } .ds-btn-primary:hover { background: #b67443; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(198,126,72,0.16); }"
+    },
+    {
+      "name": "Summary Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Resting card for a figure or list.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-label\">Net worth</div><div class=\"ds-card-value\">+12.4%</div></div>",
+      "css": ".ds-card { background: #fff; color: #413935; border-radius: 12px; padding: 20px; box-shadow: 0 1px 2px rgba(68,48,34,0.05), 0 3px 10px rgba(68,48,34,0.035); font-family: Inter, sans-serif; } .ds-card-label { font-size: 13px; font-weight: 500; color: #595754; } .ds-card-value { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Ledger",
+    "overview": "A well-kept paper ledger on a warm desk: calm surfaces, one copper accent, and numbers that are easy to trust.",
+    "keyCharacteristics": [
+      "Warm paper background with white cards; soft warm shadows.",
+      "One accent (copper) for primary actions and selected states.",
+      "Tabular, right-aligned numerals for every amount.",
+      "Gain and loss shown by sign and icon first, color second."
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "Copper appears on at most one primary action per view plus selected state.", "section": "colors" },
+      { "name": "The Sign Before Color Rule", "body": "Every gain or loss shows + or - and color only reinforces it.", "section": "colors" },
+      { "name": "The Tabular Numerals Rule", "body": "All amounts, quantities, prices and percentages use tabular numerals and are right-aligned in tables.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Elements are flat at rest; larger shadows appear only on overlays.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do reuse Vuetify and Framework7 components and the --ebk-* tokens before writing custom CSS.",
+      "Do show amounts with tabular numerals, right-aligned.",
+      "Do design empty, loading and error states for every new screen.",
+      "Do keep light and dark mode both working at WCAG AA."
+    ],
+    "donts": [
+      "Don't use color alone for gain or loss.",
+      "Don't add a second accent color or a rainbow chart palette.",
+      "Don't nest cards inside cards or add decorative gradients.",
+      "Don't hardcode hex values in components; use theme colors and tokens."
+    ]
+  }
+}

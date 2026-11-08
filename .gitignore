@@ -165,3 +165,8 @@ ezbookkeeping
 /data/
 /storage/
 /log/
+
+# Expbook: large, reinstallable agent tooling
+.agents/
+.cursor/skills/impeccable/scripts/bin/
+.impeccable/config.local.json
