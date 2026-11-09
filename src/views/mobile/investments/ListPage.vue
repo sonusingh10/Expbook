@@ -24,6 +24,10 @@
         </f7-block>
 
         <template v-else>
+            <f7-card class="ebk-trend-card"> <!-- Expbook -->
+                <portfolio-trend-card compact />
+            </f7-card>
+
             <!-- totals -->
             <f7-list strong inset dividers class="margin-vertical-half">
                 <f7-list-item class="list-item-with-header-and-title list-item-no-item-after" :header="tt('Current value')">
@@ -162,6 +166,8 @@
 </template>
 
 <script setup lang="ts">
+import PortfolioTrendCard from '@/expbook/portfolio-trend/PortfolioTrendCard.vue'; // Expbook
+
 import { ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import Decimal from 'decimal.js';

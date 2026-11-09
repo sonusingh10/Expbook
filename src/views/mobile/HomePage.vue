@@ -8,6 +8,10 @@
             </f7-nav-right>
         </f7-navbar>
 
+        <f7-card class="ebk-trend-card"> <!-- Expbook -->
+            <portfolio-trend-card compact />
+        </f7-card>
+
         <overview-dashboard :layout="layout" :loading="loading" @navigate="onNavigate" />
 
         <f7-toolbar tabbar icons bottom class="main-tabbar">
@@ -76,6 +80,7 @@
 <script setup lang="ts">
 import AIImageRecognitionSheet, { type AIImageRecognitionResult } from '@/components/mobile/AIImageRecognitionSheet.vue';
 import OverviewDashboard from './overview/OverviewDashboard.vue';
+import PortfolioTrendCard from '@/expbook/portfolio-trend/PortfolioTrendCard.vue'; // Expbook
 
 import { ref, computed, useTemplateRef } from 'vue';
 import type { Router } from 'framework7/types';

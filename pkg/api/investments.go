@@ -544,3 +544,57 @@ func (a *InvestmentsApi) PriceRefreshHandler(c *core.WebContext) (any, *errs.Err
 
 	return &models.SecurityPriceRefreshResponse{Results: results}, nil
 }
+
+// HistoryHandler returns the portfolio value over time in the user's default currency.
+// Values before a security has a recorded price use its cost basis and are flagged as estimated.
+func (a *InvestmentsApi) HistoryHandler(c *core.WebContext) (any, *errs.Error) {
+	var req models.InvestmentHistoryRequest
+	err := c.ShouldBindQuery(&req)
+
+	if err != nil {
+		log.Warnf(c, "[investments.HistoryHandler] parse request failed, because %s", err.Error())
+		return nil, errs.NewIncompleteOrIncorrectSubmissionError(err)
+	}
+
+	uid := c.GetCurrentUid()
+	user, err := a.users.GetUserById(c, uid)
+
+	if err != nil {
+		log.Errorf(c, "[investments.HistoryHandler] failed to get user \"uid:%d\", because %s", uid, err.Error())
+		return nil, errs.Or(err, errs.ErrOperationFailed)
+	}
+
+	base := user.DefaultCurrency
+
+	ratesAvailable := true
+	rateResp, err := exchangerates.Container.GetLatestExchangeRates(c, uid, a.CurrentConfig())
+
+	if err != nil {
+		log.Warnf(c, "[investments.HistoryHandler] exchange rates are not available for user \"uid:%d\", because %s", uid, err.Error())
+		ratesAvailable = false
+		rateResp = nil
+	}
+
+	rates := services.RatesFromLatest(rateResp, base)
+
+	stepDays := req.StepDays
+
+	if stepDays <= 0 {
+		stepDays = 7
+	}
+
+	points, missing, firstTrade, err := a.trades.BuildHistory(c, uid, base, rates, req.StartTime, time.Now().Unix(), int64(stepDays)*86400)
+
+	if err != nil {
+		log.Errorf(c, "[investments.HistoryHandler] failed to build history for user \"uid:%d\", because %s", uid, err.Error())
+		return nil, errs.Or(err, errs.ErrOperationFailed)
+	}
+
+	return &models.InvestmentHistoryResponse{
+		BaseCurrency:          base,
+		RatesAvailable:        ratesAvailable,
+		UnconvertedCurrencies: missing,
+		FirstTradeTime:        firstTrade,
+		Points:                models.ToInvestmentHistoryPoints(points),
+	}, nil
+}

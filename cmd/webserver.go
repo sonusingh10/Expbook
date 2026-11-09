@@ -480,6 +480,7 @@ func startWebServer(c *core.CliContext) error {
 			apiV1Route.POST("/investments/trades/import.json", bindApi(api.Investments.TradeImportHandler, config))
 			apiV1Route.POST("/investments/trades/sync.json", bindApi(api.Investments.TradeSyncHandler, config))
 			apiV1Route.GET("/investments/summary.json", bindApi(api.Investments.SummaryHandler, config))
+			apiV1Route.GET("/investments/history.json", bindApi(api.Investments.HistoryHandler, config))
 			apiV1Route.POST("/investments/prices/refresh.json", bindApi(api.Investments.PriceRefreshHandler, config))
 
 			// Display currency preference (Expbook)

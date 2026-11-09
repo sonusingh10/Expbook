@@ -45,6 +45,8 @@
                             </div>
 
                             <template v-else-if="loading || securities.length">
+                                <portfolio-trend-card class="ebk-trend-in-page" /> <!-- Expbook -->
+
                                 <!-- totals -->
                                 <!-- one flat strip of figures: no card inside the page card -->
                                 <div class="ebk-totals mb-4">
@@ -252,6 +254,7 @@
 import ConfirmDialog from '@/components/desktop/ConfirmDialog.vue';
 import SnackBar from '@/components/desktop/SnackBar.vue';
 import SecurityEditDialog from './dialogs/SecurityEditDialog.vue';
+import PortfolioTrendCard from '@/expbook/portfolio-trend/PortfolioTrendCard.vue'; // Expbook
 import TradeEditDialog from './dialogs/TradeEditDialog.vue';
 import ImportDialog from './dialogs/ImportDialog.vue';
 import PriceDialog from './dialogs/PriceDialog.vue';

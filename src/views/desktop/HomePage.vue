@@ -1,6 +1,9 @@
 <template>
     <main-page-layout no-navbar>
         <template #content>
+            <v-card variant="flat" class="mb-4"> <!-- Expbook -->
+                <portfolio-trend-card />
+            </v-card>
             <overview-dashboard :layout="layout" :loading="loadingOverview" @refresh="reload" />
         </template>
     </main-page-layout>
@@ -11,6 +14,7 @@
 <script setup lang="ts">
 import SnackBar from '@/components/desktop/SnackBar.vue';
 import OverviewDashboard from './overview/OverviewDashboard.vue';
+import PortfolioTrendCard from '@/expbook/portfolio-trend/PortfolioTrendCard.vue'; // Expbook
 
 import { ref, computed, useTemplateRef } from 'vue';
 

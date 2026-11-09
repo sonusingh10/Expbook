@@ -334,6 +334,8 @@ export default defineConfig(() => {
                                         return true;
                                     } else if (/[\\/]src[\\/]expbook[\\/].+\.(js|ts)$/i.test(id)) { // Expbook: the stores import this module, so it must share their chunk
                                         return true;
+                                    } else if (/[\\/]src[\\/]expbook[\\/]portfolio-trend[\\/].+\.vue/i.test(id)) { // Expbook: this card is used by both the desktop and the mobile app, so it must not get a chunk of its own
+                                        return true;
                                     } else if (/[\\/]src[\\/]locales[\\/]helpers\.(js|ts)/i.test(id)) {
                                         return true;
                                     } else {

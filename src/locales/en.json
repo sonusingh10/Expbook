@@ -3171,5 +3171,18 @@
     "Show amounts in": "Show amounts in",
     "Rates as of": "Rates as of",
     "No exchange rate for this currency yet": "No exchange rate for this currency yet",
-    "Unable to save your choice. Try again.": "Unable to save your choice. Try again."
+    "Unable to save your choice. Try again.": "Unable to save your choice. Try again.",
+    "Portfolio trend": "Portfolio trend",
+    "Total assets over time": "Total assets over time",
+    "6M": "6M",
+    "1Y": "1Y",
+    "3Y": "3Y",
+    "Change": "Change",
+    "Cost": "Cost",
+    "Chart range": "Chart range",
+    "Dashed lines use cost where no market price was recorded yet. Prices you record from now on build the real history.": "Dashed lines use cost where no market price was recorded yet. Prices you record from now on build the real history.",
+    "Unable to load the trend": "Unable to load the trend",
+    "Add an account or an investment to see your trend.": "Add an account or an investment to see your trend.",
+    "Investments are left out because there is no exchange rate for this currency yet.": "Investments are left out because there is no exchange rate for this currency yet.",
+    "Cost of investments": "Cost of investments"
 }

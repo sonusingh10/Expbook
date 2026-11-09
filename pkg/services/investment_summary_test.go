@@ -2,6 +2,7 @@ package services
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -78,4 +79,59 @@ func TestBuildSummaryFromDatabase(t *testing.T) {
 
 	assert.Equal(t, investments.WarningNoPrice, warnings["NOPX"])
 	assert.Equal(t, "", warnings["INFY"])
+}
+
+func TestBuildHistoryFromDatabase(t *testing.T) {
+	c := setupInvestmentTestDb(t)
+
+	sec := newSecurity(t, c, "INFY", "INR")
+	assert.NoError(t, InvestmentTrades.CreateTrade(c, newTrade(t, sec, investments.TradeTypeBuy, 60, "10", "100", 0)))
+
+	price := func(s string) int64 { v, _ := investments.ParseScaled(s); return v }
+	// one price recorded 10 days ago, none before it
+	assert.NoError(t, Securities.SetLatestPrice(c, testUid, sec.SecurityId, price("150"), time.Now().AddDate(0, 0, -10).Unix(), "manual"))
+
+	rates := RatesFromLatest(nil, "INR")
+	now := time.Now().Unix()
+	week := int64(7 * 86400)
+
+	points, missing, firstTrade, err := InvestmentTrades.BuildHistory(c, testUid, "INR", rates, 0, now, week)
+	assert.NoError(t, err)
+	assert.Empty(t, missing)
+	assert.NotZero(t, firstTrade)
+	assert.GreaterOrEqual(t, len(points), 8)
+	assert.Equal(t, now, points[len(points)-1].Time, "the last point is now")
+
+	first, last := points[0], points[len(points)-1]
+	assert.Equal(t, int64(1000_00), first.Invested)
+	assert.True(t, first.Estimated, "no price was recorded yet, so cost stands in for value")
+	assert.Equal(t, int64(1000_00), first.Value)
+
+	assert.False(t, last.Estimated)
+	assert.Equal(t, int64(1500_00), last.Value, "10 units at the recorded price of 150")
+	assert.Equal(t, int64(1000_00), last.Invested)
+
+	// a start after the first trade is honoured, and one before it shows zeros
+	recent, _, _, err := InvestmentTrades.BuildHistory(c, testUid, "INR", rates, now-14*86400, now, week)
+	assert.NoError(t, err)
+	assert.Equal(t, now-14*86400, recent[0].Time)
+	assert.Len(t, recent, 3)
+
+	early, _, _, err := InvestmentTrades.BuildHistory(c, testUid, "INR", rates, now-100*86400, now, week)
+	assert.NoError(t, err)
+	assert.Equal(t, now-100*86400, early[0].Time)
+	assert.Zero(t, early[0].Invested, "nothing was bought yet")
+
+	prices, err := Securities.GetAllPricesByUid(c, testUid)
+	assert.NoError(t, err)
+	assert.Len(t, prices, 1)
+
+	_, err = Securities.GetAllPricesByUid(c, 0)
+	assert.Error(t, err)
+
+	// no trades: an empty history, not an error
+	empty, _, none, err := InvestmentTrades.BuildHistory(c, testUid+1, "INR", rates, 0, now, week)
+	assert.NoError(t, err)
+	assert.Empty(t, empty)
+	assert.Zero(t, none)
 }
