@@ -1,9 +1,9 @@
 import { computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
 import { useOverviewStore } from '@/stores/overview.ts';
 
 import type { BigDecimal } from '@/core/numeral.ts';
@@ -42,7 +42,7 @@ export function usePeriodStatisticsWidgetBase(props: CommonPeriodStatisticsWidge
     } = useI18n();
 
     const settingsStore = useSettingsStore();
-    const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const overviewStore = useOverviewStore();
 
     const showAmountInHomePage = computed<boolean>({
@@ -50,7 +50,7 @@ export function usePeriodStatisticsWidgetBase(props: CommonPeriodStatisticsWidge
         set: (value) => settingsStore.setShowAmountInHomePage(value)
     });
 
-    const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+    const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
 
     const transactionOverview = computed<TransactionOverviewData>(() => overviewStore.transactionOverview);
 

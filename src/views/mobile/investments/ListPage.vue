@@ -17,7 +17,7 @@
 
         <!-- empty -->
         <f7-block class="text-align-center margin-top" v-else-if="!loading && !securities.length">
-            <f7-icon f7="chart_line_uptrend_xyaxis" size="40" class="margin-bottom" style="opacity: 0.5"></f7-icon>
+            <f7-icon f7="graph_square" size="40" class="margin-bottom" style="opacity: 0.5"></f7-icon>
             <h2 class="no-margin-top">{{ tt('Track what you own') }}</h2>
             <p class="ebk-mobile-empty-text">{{ tt('Add a security and record your buys, sells and dividends. Holdings, gains and allocation are calculated for you.') }}</p>
             <f7-button fill round @click="addSecurity">{{ tt('Add Security') }}</f7-button>
@@ -28,11 +28,11 @@
             <f7-list strong inset dividers class="margin-vertical-half">
                 <f7-list-item class="list-item-with-header-and-title list-item-no-item-after" :header="tt('Current value')">
                     <template #title>
-                        <span class="ebk-mobile-large ebk-mobile-numeric" v-if="summary">{{ money(summary.totals.value) }}</span>
+                        <span class="ebk-mobile-large ebk-mobile-numeric" v-if="summary">{{ baseMoney(summary.totals.value) }}</span>
                         <span v-else>…</span>
                     </template>
                 </f7-list-item>
-                <f7-list-item :title="tt('Invested')" :after="summary ? money(summary.totals.invested) : ''"></f7-list-item>
+                <f7-list-item :title="tt('Invested')" :after="summary ? baseMoney(summary.totals.invested) : ''"></f7-list-item>
                 <f7-list-item :title="tt('Unrealised gain')">
                     <template #after>
                         <span class="ebk-mobile-numeric" :class="signClass(summary ? summary.totals.unrealised : 0)" v-if="summary">
@@ -168,6 +168,8 @@ import Decimal from 'decimal.js';
 import type { Router } from 'framework7/types';
 
 import { useI18n } from '@/locales/helpers.ts';
+import { useInvestmentDisplayCurrency } from '@/expbook/display-currency/investments.ts'; // Expbook
+
 import { useI18nUIComponents, showLoading, hideLoading } from '@/lib/ui/mobile.ts';
 
 import { useInvestmentStore } from '@/stores/investment.ts';
@@ -238,6 +240,14 @@ function money(minor: number, currency?: string): string {
 
 function signedMoney(minor: number, currency?: string): string {
     return withExplicitSign(money(minor, currency), minor);
+}
+
+// Expbook: totals come from the server in the profile currency; show them in the display currency.
+const { toDisplay } = useInvestmentDisplayCurrency();
+
+function baseMoney(minor: number): string {
+    const shown = toDisplay(minor, summary.value?.baseCurrency);
+    return shown ? money(shown.minor, shown.currency) : money(minor);
 }
 
 function signClass(minor: number): string {

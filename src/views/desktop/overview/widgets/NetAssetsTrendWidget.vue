@@ -28,6 +28,7 @@ import OverviewWidgetHeader from './OverviewWidgetHeader.vue';
 import type { TrendsBarChartClickEvent } from '@/components/base/TrendsChartBase.ts';
 
 import { computed } from 'vue';
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useRouter } from 'vue-router';
 
 import { useI18n } from '@/locales/helpers.ts';
@@ -66,12 +67,13 @@ const { tt } = useI18n();
 
 const settingsStore = useSettingsStore();
 const userStore = useUserStore();
+const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
 const accountsStore = useAccountsStore();
 const overviewStore = useOverviewStore();
 const exchangeRatesStore = useExchangeRatesStore();
 
 const showAmountInHomePage = computed<boolean>(() => settingsStore.appSettings.showAmountInHomePage);
-const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
 
 const startTime = computed<number>(() => getUnixTimeBeforeUnixTime(overviewStore.transactionDataRange.thisMonth.startTime, props.months - 1, 'months'));
 const endTime = computed<number>(() => overviewStore.transactionDataRange.thisMonth.endTime);

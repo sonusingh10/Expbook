@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useSettingsStore } from './setting.ts';
 import { useUserStore } from './user.ts';
 import { useAccountsStore } from './account.ts';
@@ -137,6 +138,7 @@ interface TransactionOverviewOptions {
 export const useOverviewStore = defineStore('overview', () => {
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
     const transactionCategoriesStore = useTransactionCategoriesStore();
     const transactionsStore = useTransactionsStore();
@@ -182,7 +184,7 @@ export const useOverviewStore = defineStore('overview', () => {
         }
 
         const finalOverviewData: TransactionOverviewData = {};
-        const defaultCurrency = userStore.currentUserDefaultCurrency;
+        const defaultCurrency = displayCurrencyStore.currency;
 
         ALL_TRANSACTION_AMOUNTS_REQUEST_TYPE.forEach(field => {
             const item = overviewData[field];

@@ -1,9 +1,9 @@
 import { computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
 import { useAccountsStore } from '@/stores/account.ts';
 
 import type { BigDecimal, HiddenAmount, BigDecimalWithSuffix } from '@/core/numeral.ts';
@@ -14,7 +14,7 @@ export function useAssetSummaryWidgetBase(scene: 'overview' | 'accountList') {
     const { formatAmountToLocalizedNumeralsWithCurrency } = useI18n();
 
     const settingsStore = useSettingsStore();
-    const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
 
     const showAmountInHomePage = computed<boolean>({
@@ -27,7 +27,7 @@ export function useAssetSummaryWidgetBase(scene: 'overview' | 'accountList') {
         set: (value) => settingsStore.setShowAccountBalance(value)
     });
 
-    const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+    const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
     const allAccounts = computed<Account[]>(() => accountsStore.allAccounts);
 
     const netAssets = computed<string>(() => {

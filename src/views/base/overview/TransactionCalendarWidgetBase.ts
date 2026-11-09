@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
 import type { TransactionTotalAmount } from '@/stores/transaction.ts';
 import { useOverviewStore } from '@/stores/overview.ts';
 
@@ -28,11 +28,11 @@ export interface CommonTransactionCalendarWidgetProps {
 
 export function useTransactionCalendarWidgetBase(props: CommonTransactionCalendarWidgetProps) {
     const settingsStore = useSettingsStore();
-    const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const overviewStore = useOverviewStore();
 
     const showAmountInCalendar = computed<boolean>(() => props.showAmount && settingsStore.appSettings.showAmountInHomePage);
-    const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+    const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
 
     const showIncome = computed<boolean>(() => props.transactionTypes.includes(TransactionType.Income));
     const showExpense = computed<boolean>(() => props.transactionTypes.includes(TransactionType.Expense));

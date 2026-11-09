@@ -332,6 +332,8 @@ export default defineConfig(() => {
                                         return true;
                                     } else if (/[\\/]src[\\/]views[\\/]base[\\/]/i.test(id)) {
                                         return true;
+                                    } else if (/[\\/]src[\\/]expbook[\\/].+\.(js|ts)$/i.test(id)) { // Expbook: the stores import this module, so it must share their chunk
+                                        return true;
                                     } else if (/[\\/]src[\\/]locales[\\/]helpers\.(js|ts)/i.test(id)) {
                                         return true;
                                     } else {

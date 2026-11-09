@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useSettingsStore } from './setting.ts';
 import { useUserStore } from './user.ts';
 import { useAccountsStore } from './account.ts';
@@ -122,6 +123,7 @@ export interface TransactionMonthList {
 export const useTransactionsStore = defineStore('transactions', () => {
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
     const transactionCategoriesStore = useTransactionCategoriesStore();
     const overviewStore = useOverviewStore();
@@ -676,7 +678,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
             incomeExpenseDailyTotalAmounts: {}
         };
 
-        calculateMonthTotalAmount(monthList, userStore.currentUserDefaultCurrency, accountIds, false);
+        calculateMonthTotalAmount(monthList, displayCurrencyStore.currency, accountIds, false);
 
         return {
             inflowOutflowDailyTotalAmounts: monthList.inflowOutflowDailyTotalAmounts,

@@ -3,7 +3,8 @@
         <f7-navbar>
             <f7-nav-title :title="tt('global.app.title')"></f7-nav-title>
             <f7-nav-right>
-                <f7-link icon-f7="chart_line_uptrend_xyaxis" href="/investment/list" :aria-label="tt('Investments')"></f7-link>
+                <display-currency-link /> <!-- Expbook -->
+                <f7-link icon-f7="graph_square" href="/investment/list" :aria-label="tt('Investments')"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 
@@ -34,6 +35,8 @@
                 <span class="tabbar-label">{{ tt('Settings') }}</span>
             </f7-link>
         </f7-toolbar>
+
+        <display-currency-popover /> <!-- Expbook -->
 
         <f7-popover class="template-popover-menu" target-el="#homepage-add-button"
                     v-model:opened="showTransactionTemplatePopover">
@@ -78,6 +81,8 @@ import { ref, computed, useTemplateRef } from 'vue';
 import type { Router } from 'framework7/types';
 
 import { useI18n } from '@/locales/helpers.ts';
+import DisplayCurrencyLink from '@/expbook/display-currency/DisplayCurrencyLink.vue'; // Expbook
+import DisplayCurrencyPopover from '@/expbook/display-currency/DisplayCurrencyPopover.vue'; // Expbook
 import { useI18nUIComponents, isiOS } from '@/lib/ui/mobile.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';

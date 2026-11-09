@@ -111,6 +111,7 @@
                             </slot>
                         </div>
                         <v-spacer />
+                        <display-currency-chip /> <!-- Expbook -->
                         <v-btn class="ms-2" color="primary" variant="text" density="comfortable"
                                :aria-label="tt('Use on Mobile Device')" :icon="true"
                                @click="showMobileQrCode = true">
@@ -200,6 +201,7 @@ import { useDisplay, useTheme } from 'vuetify';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useI18n } from '@/locales/helpers.ts';
+import DisplayCurrencyChip from '@/expbook/display-currency/DisplayCurrencyChip.vue'; // Expbook
 
 import { useRootStore } from '@/stores/index.ts';
 import { useSettingsStore } from '@/stores/setting.ts';

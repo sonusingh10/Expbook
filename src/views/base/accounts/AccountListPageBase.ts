@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
@@ -21,6 +22,7 @@ export function useAccountListPageBase() {
 
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
 
     const loading = ref<boolean>(true);
@@ -37,7 +39,7 @@ export function useAccountListPageBase() {
 
     const firstDayOfWeek = computed<WeekDayValue>(() => userStore.currentUserFirstDayOfWeek);
     const fiscalYearStart = computed<number>(() => userStore.currentUserFiscalYearStart);
-    const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+    const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
     const useLastReconciledTime = computed(() => userStore.currentUserUseLastReconciledTime);
 
     const allAccounts = computed<Account[]>(() => accountsStore.allAccounts);

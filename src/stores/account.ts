@@ -1,8 +1,8 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useSettingsStore } from './setting.ts';
-import { useUserStore } from './user.ts';
 import { useOverviewStore } from '@/stores/overview.ts';
 import { useExchangeRatesStore } from './exchangeRates.ts';
 
@@ -28,7 +28,7 @@ import logger from '@/lib/logger.ts';
 
 export const useAccountsStore = defineStore('accounts', () => {
     const settingsStore = useSettingsStore();
-    const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const overviewStore = useOverviewStore();
     const exchangeRatesStore = useExchangeRatesStore();
 
@@ -487,10 +487,10 @@ export const useAccountsStore = defineStore('accounts', () => {
         let hasUnCalculatedAmount = false;
 
         for (const accountBalance of accountsBalance) {
-            if (accountBalance.currency === userStore.currentUserDefaultCurrency) {
+            if (accountBalance.currency === displayCurrencyStore.currency) {
                 netAssets = netAssets.add(accountBalance.balance);
             } else {
-                const balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, userStore.currentUserDefaultCurrency);
+                const balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, displayCurrencyStore.currency);
 
                 if (!balance) {
                     hasUnCalculatedAmount = true;
@@ -523,10 +523,10 @@ export const useAccountsStore = defineStore('accounts', () => {
         let hasUnCalculatedAmount = false;
 
         for (const accountBalance of accountsBalance) {
-            if (accountBalance.currency === userStore.currentUserDefaultCurrency) {
+            if (accountBalance.currency === displayCurrencyStore.currency) {
                 totalAssets = totalAssets.add(accountBalance.balance);
             } else {
-                const balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, userStore.currentUserDefaultCurrency);
+                const balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, displayCurrencyStore.currency);
 
                 if (!balance) {
                     hasUnCalculatedAmount = true;
@@ -559,10 +559,10 @@ export const useAccountsStore = defineStore('accounts', () => {
         let hasUnCalculatedAmount = false;
 
         for (const accountBalance of accountsBalance) {
-            if (accountBalance.currency === userStore.currentUserDefaultCurrency) {
+            if (accountBalance.currency === displayCurrencyStore.currency) {
                 totalLiabilities = totalLiabilities.subtract(accountBalance.balance);
             } else {
-                const balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, userStore.currentUserDefaultCurrency);
+                const balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, displayCurrencyStore.currency);
 
                 if (!balance) {
                     hasUnCalculatedAmount = true;
@@ -599,10 +599,10 @@ export const useAccountsStore = defineStore('accounts', () => {
         for (const accountBalance of accountsBalance) {
             let balance: BigDecimal | null = null;
 
-            if (accountBalance.currency === userStore.currentUserDefaultCurrency) {
+            if (accountBalance.currency === displayCurrencyStore.currency) {
                 balance = accountBalance.balance;
             } else {
-                balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, userStore.currentUserDefaultCurrency);
+                balance = exchangeRatesStore.getExchangedAmount(accountBalance.balance, accountBalance.currency, displayCurrencyStore.currency);
 
                 if (!balance) {
                     hasUnCalculatedAmount = true;
@@ -622,11 +622,11 @@ export const useAccountsStore = defineStore('accounts', () => {
                 if (isDefined(accountBalance.creditCardLimit) && isBigDecimal(accountBalance.creditCardLimit.amount) && accountBalance.creditCardLimit.shareByCount > 0) {
                     const amount = accountBalance.creditCardLimit.amount.divide(accountBalance.creditCardLimit.shareByCount);
 
-                    if (accountBalance.creditCardLimit.currency === userStore.currentUserDefaultCurrency) {
+                    if (accountBalance.creditCardLimit.currency === displayCurrencyStore.currency) {
                         totalCreditCardAvailableCredit = totalCreditCardAvailableCredit.add(amount).add(balance);
                         hasCalculatedAvailableCredit = true;
                     } else {
-                        const limit = exchangeRatesStore.getExchangedAmount(amount, accountBalance.creditCardLimit.currency, userStore.currentUserDefaultCurrency);
+                        const limit = exchangeRatesStore.getExchangedAmount(amount, accountBalance.creditCardLimit.currency, displayCurrencyStore.currency);
 
                         if (limit) {
                             totalCreditCardAvailableCredit = totalCreditCardAvailableCredit.add(limit).add(balance);
@@ -687,7 +687,7 @@ export const useAccountsStore = defineStore('accounts', () => {
             return null;
         }
 
-        let resultCurrency = userStore.currentUserDefaultCurrency;
+        let resultCurrency = displayCurrencyStore.currency;
         let parentHasSetCurrency = false;
 
         if (account.category === AccountCategory.CreditCard.type && account.currency && account.currency !== ACCOUNT_CURRENCY_NOT_SET_VALUE) {
@@ -817,8 +817,8 @@ export const useAccountsStore = defineStore('accounts', () => {
                 if (account.type === AccountType.SingleAccount.type) {
                     totalBalance = parseBigDecimal(account.balance);
 
-                    if (account.currency !== userStore.currentUserDefaultCurrency) {
-                        const exchangedBalance = exchangeRatesStore.getExchangedAmount(totalBalance, account.currency, userStore.currentUserDefaultCurrency);
+                    if (account.currency !== displayCurrencyStore.currency) {
+                        const exchangedBalance = exchangeRatesStore.getExchangedAmount(totalBalance, account.currency, displayCurrencyStore.currency);
 
                         if (exchangedBalance) {
                             totalBalance = exchangedBalance.truncate();
@@ -832,8 +832,8 @@ export const useAccountsStore = defineStore('accounts', () => {
 
                         let subAccountBalance = parseBigDecimal(subAccount.balance);
 
-                        if (subAccount.currency !== userStore.currentUserDefaultCurrency) {
-                            const exchangedBalance = exchangeRatesStore.getExchangedAmount(subAccountBalance, subAccount.currency, userStore.currentUserDefaultCurrency);
+                        if (subAccount.currency !== displayCurrencyStore.currency) {
+                            const exchangedBalance = exchangeRatesStore.getExchangedAmount(subAccountBalance, subAccount.currency, displayCurrencyStore.currency);
 
                             if (exchangedBalance) {
                                 subAccountBalance = exchangedBalance.truncate();

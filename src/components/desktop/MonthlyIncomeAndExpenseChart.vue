@@ -26,6 +26,7 @@ import { computed } from 'vue';
 import type { ECElementEvent } from 'echarts/core';
 import type { CallbackDataParams } from 'echarts/types/dist/shared';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
@@ -75,10 +76,11 @@ const {
 
 const settingsStore = useSettingsStore();
 const userStore = useUserStore();
+const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
 
 const textDirection = computed<TextDirection>(() => getCurrentLanguageTextDirection());
 const showAmountInHomePage = computed<boolean>(() => settingsStore.appSettings.showAmountInHomePage);
-const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
 const showIncome = computed<boolean>(() => props.transactionTypes.includes(TransactionType.Income));
 const showExpense = computed<boolean>(() => props.transactionTypes.includes(TransactionType.Expense));
 const showIncomeAndExpense = computed<boolean>(() => showIncome.value && showExpense.value);

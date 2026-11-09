@@ -23,3 +23,4 @@ Spec Kit and Impeccable skills are committed except the downloadable engine bina
 - Keyboard focus shows a 2px ring on desktop (upstream removed outlines).
 - CI runs the Impeccable detector on the investment screens (`.github/workflows/design-detect.yml`).
 - Broker import: `scripts/broker/` and `specs/002-broker-sync/`.
+- Display currency (`src/expbook/display-currency/`, `specs/003-display-currency/`): a top-bar button shows all totals in another currency without changing the profile. Saved per account on the server; converted in the browser. Lists the extra upstream lines it touches.

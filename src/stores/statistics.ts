@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useSettingsStore } from './setting.ts';
 import { useUserStore } from './user.ts';
 import { useAccountsStore } from './account.ts';
@@ -181,6 +182,7 @@ export interface TransactionStatisticsFilter extends TransactionStatisticsPartia
 export const useStatisticsStore = defineStore('statistics', () => {
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
     const transactionCategoriesStore = useTransactionCategoriesStore();
     const exchangeRatesStore = useExchangeRatesStore();
@@ -568,8 +570,8 @@ export const useStatisticsStore = defineStore('statistics', () => {
 
             let amount: BigDecimal = parseBigDecimal(account.balance);
 
-            if (account.currency !== userStore.currentUserDefaultCurrency) {
-                const finalAmount = exchangeRatesStore.getExchangedAmount(amount, account.currency, userStore.currentUserDefaultCurrency);
+            if (account.currency !== displayCurrencyStore.currency) {
+                const finalAmount = exchangeRatesStore.getExchangedAmount(amount, account.currency, displayCurrencyStore.currency);
 
                 if (!finalAmount) {
                     continue;
@@ -647,8 +649,8 @@ export const useStatisticsStore = defineStore('statistics', () => {
             let originalAmount: BigDecimal = parseBigDecimal(account.balance);
             let amount: BigDecimal = originalAmount;
 
-            if (account.currency !== userStore.currentUserDefaultCurrency) {
-                const finalAmount = exchangeRatesStore.getExchangedAmount(amount, account.currency, userStore.currentUserDefaultCurrency);
+            if (account.currency !== displayCurrencyStore.currency) {
+                const finalAmount = exchangeRatesStore.getExchangedAmount(amount, account.currency, displayCurrencyStore.currency);
 
                 if (!finalAmount) {
                     continue;
@@ -1127,7 +1129,7 @@ export const useStatisticsStore = defineStore('statistics', () => {
 
     function assembleAccountAndCategoryInfo(items: TransactionStatisticResponseItem[]): TransactionStatisticResponseItemWithInfo[] {
         const finalItems: TransactionStatisticResponseItemWithInfo[] = [];
-        const defaultCurrency = userStore.currentUserDefaultCurrency;
+        const defaultCurrency = displayCurrencyStore.currency;
 
         for (const dataItem of items) {
             const item: TransactionStatisticResponseItemWithInfo = {

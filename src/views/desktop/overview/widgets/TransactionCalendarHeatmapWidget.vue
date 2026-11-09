@@ -21,12 +21,12 @@
 import OverviewWidgetHeader from './OverviewWidgetHeader.vue';
 
 import { computed } from 'vue';
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useRouter } from 'vue-router';
 
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
 import { useOverviewStore } from '@/stores/overview.ts';
 import { useExchangeRatesStore } from '@/stores/exchangeRates.ts';
 
@@ -66,12 +66,12 @@ const router = useRouter();
 const { tt } = useI18n();
 
 const settingsStore = useSettingsStore();
-const userStore = useUserStore();
+const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
 const overviewStore = useOverviewStore();
 const exchangeRatesStore = useExchangeRatesStore();
 
 const showAmountInHomePage = computed<boolean>(() => settingsStore.appSettings.showAmountInHomePage);
-const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
 const startTime = computed<number>(() => getUnixTimeAfterUnixTime(getUnixTimeBeforeUnixTime(overviewStore.transactionDataRange.today.startTime, props.months, 'months'), 1, 'days'));
 const endTime = computed<number>(() => overviewStore.transactionDataRange.today.endTime);
 const transactionTypeName = computed<string>(() => props.transactionType === TransactionType.Income ? 'Income' : 'Expense');

@@ -482,6 +482,10 @@ func startWebServer(c *core.CliContext) error {
 			apiV1Route.GET("/investments/summary.json", bindApi(api.Investments.SummaryHandler, config))
 			apiV1Route.POST("/investments/prices/refresh.json", bindApi(api.Investments.PriceRefreshHandler, config))
 
+			// Display currency preference (Expbook)
+			apiV1Route.GET("/expbook/preferences/display_currency.json", bindApi(api.ExpbookPreferences.DisplayCurrencyGetHandler, config))
+			apiV1Route.POST("/expbook/preferences/display_currency/update.json", bindApi(api.ExpbookPreferences.DisplayCurrencyUpdateHandler, config))
+
 			// Transaction Templates
 			apiV1Route.GET("/transaction/templates/list.json", bindApi(api.TransactionTemplates.TemplateListHandler, config))
 			apiV1Route.GET("/transaction/templates/get.json", bindApi(api.TransactionTemplates.TemplateGetHandler, config))

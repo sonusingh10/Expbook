@@ -3166,5 +3166,10 @@
     "Unable to import trades": "Unable to import trades",
     "Unable to refresh prices": "Unable to refresh prices",
     "Add a security and record your buys, sells and dividends. Holdings, gains and allocation are calculated for you.": "Add a security and record your buys, sells and dividends. Holdings, gains and allocation are calculated for you.",
-    "Net worth": "Net worth"
+    "Net worth": "Net worth",
+    "Show amounts in another currency": "Show amounts in another currency",
+    "Show amounts in": "Show amounts in",
+    "Rates as of": "Rates as of",
+    "No exchange rate for this currency yet": "No exchange rate for this currency yet",
+    "Unable to save your choice. Try again.": "Unable to save your choice. Try again."
 }

@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
@@ -103,6 +104,7 @@ export function useTransactionListPageBase() {
 
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
     const transactionCategoriesStore = useTransactionCategoriesStore();
     const transactionTagsStore = useTransactionTagsStore();
@@ -118,8 +120,8 @@ export function useTransactionListPageBase() {
     const numeralSystem = computed<NumeralSystem>(() => getCurrentNumeralSystemType());
     const firstDayOfWeek = computed<WeekDayValue>(() => userStore.currentUserFirstDayOfWeek);
     const fiscalYearStart = computed<number>(() => userStore.currentUserFiscalYearStart);
-    const userDefaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
-    const selectedAccountDefaultCurrency = computed<string>(() => getUnifiedSelectedAccountsCurrencyOrDefaultCurrency(allAccountsMap.value, queryAllFilterAccountIds.value, userStore.currentUserDefaultCurrency));
+    const userDefaultCurrency = computed<string>(() => displayCurrencyStore.currency);
+    const selectedAccountDefaultCurrency = computed<string>(() => getUnifiedSelectedAccountsCurrencyOrDefaultCurrency(allAccountsMap.value, queryAllFilterAccountIds.value, displayCurrencyStore.currency));
     const showTotalAmountInTransactionListPage = computed<boolean>(() => settingsStore.appSettings.showTotalAmountInTransactionListPage);
     const totalAmountTypeInTransactionListPage = computed<number>(() => settingsStore.appSettings.totalAmountTypeInTransactionListPage);
     const showTagInTransactionListPage = computed<boolean>(() => settingsStore.appSettings.showTagInTransactionListPage);

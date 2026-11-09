@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
@@ -53,6 +54,7 @@ export function useStatisticsTransactionPageBase() {
 
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const statisticsStore = useStatisticsStore();
 
     const loading = ref<boolean>(true);
@@ -61,7 +63,7 @@ export function useStatisticsTransactionPageBase() {
     const assetTrendsDateAggregationType = ref<number>(ChartDateAggregationType.Default.type);
 
     const showAccountBalance = computed<boolean>(() => settingsStore.appSettings.showAccountBalance);
-    const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+    const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
     const firstDayOfWeek = computed<WeekDayValue>(() => userStore.currentUserFirstDayOfWeek);
     const fiscalYearStart = computed<number>(() => userStore.currentUserFiscalYearStart);
 

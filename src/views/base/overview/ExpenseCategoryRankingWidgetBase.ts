@@ -1,9 +1,9 @@
 import { computed } from 'vue';
 
+import { useDisplayCurrencyStore } from '@/expbook/display-currency/store.ts'; // Expbook
 import { useI18n } from '@/locales/helpers.ts';
 
 import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
 import { useAccountsStore } from '@/stores/account.ts';
 import { useTransactionCategoriesStore } from '@/stores/transactionCategory.ts';
 import { useOverviewStore } from '@/stores/overview.ts';
@@ -41,14 +41,14 @@ export function useExpenseCategoryRankingWidgetBase(props: CommonExpenseCategory
     const { formatAmountToLocalizedNumeralsWithCurrency } = useI18n();
 
     const settingsStore = useSettingsStore();
-    const userStore = useUserStore();
+    const displayCurrencyStore = useDisplayCurrencyStore(); // Expbook
     const accountsStore = useAccountsStore();
     const categoriesStore = useTransactionCategoriesStore();
     const overviewStore = useOverviewStore();
     const exchangeRatesStore = useExchangeRatesStore();
 
     const showAmountInHomePage = computed<boolean>(() => settingsStore.appSettings.showAmountInHomePage);
-    const defaultCurrency = computed<string>(() => userStore.currentUserDefaultCurrency);
+    const defaultCurrency = computed<string>(() => displayCurrencyStore.currency);
 
 
     const rankingData = computed<{ total: BigDecimal; incomplete: boolean; items: RankingItem[] }>(() => {

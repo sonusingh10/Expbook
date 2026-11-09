@@ -1,239 +1,243 @@
 <template>
-    <v-row class="match-height">
-        <v-col cols="12">
-            <v-card variant="flat">
-                <template #title>
-                    <div class="title-and-toolbar d-flex align-center flex-wrap ga-2">
-                        <span>{{ tt('Investments') }}</span>
-                        <v-btn density="compact" color="default" variant="text" class="ms-1"
-                               :aria-label="tt('Refresh prices')" :icon="true"
-                               :disabled="loading || refreshing || !hasRefreshableSecurities"
-                               :loading="refreshing" @click="refreshPrices">
-                            <template #loader>
-                                <v-progress-circular indeterminate size="20"/>
-                            </template>
-                            <v-icon :icon="mdiRefresh" size="24" />
-                            <v-tooltip activator="parent">{{ hasRefreshableSecurities ? tt('Refresh prices') : tt('No securities use an online price source') }}</v-tooltip>
-                        </v-btn>
-                        <v-spacer />
-                        <v-btn variant="text" color="default" :prepend-icon="mdiPlus" :disabled="loading" @click="addSecurity">{{ tt('Add Security') }}</v-btn>
-                        <v-btn variant="outlined" color="default" :prepend-icon="mdiFileUploadOutline" :disabled="loading" @click="importCsv">{{ tt('Import CSV') }}</v-btn>
-                        <v-btn variant="flat" color="primary" :prepend-icon="mdiPlus" :disabled="loading || !securities.length" @click="addTrade()">{{ tt('Add Trade') }}</v-btn>
-                    </div>
-                </template>
-
-                <v-card-text class="pt-0">
-                    <v-alert type="error" variant="tonal" class="mb-4" v-if="loadError">
-                        <div class="d-flex align-center">
-                            <span>{{ loadError }}</span>
-                            <v-spacer />
-                            <v-btn variant="text" size="small" @click="reload">{{ tt('Retry') }}</v-btn>
-                        </div>
-                    </v-alert>
-
-                    <!-- empty state -->
-                    <div class="ebk-empty text-center py-12" v-if="!loading && !loadError && !securities.length">
-                        <v-icon :icon="mdiChartLine" size="40" class="mb-3 text-medium-emphasis" />
-                        <h2 class="text-title-large mb-2">{{ tt('Track what you own') }}</h2>
-                        <p class="text-body-medium text-medium-emphasis mx-auto mb-5 ebk-empty-text">
-                            {{ tt('Add a security and record your buys, sells and dividends, or import them from a CSV file. Holdings, gains and allocation are calculated for you.') }}
-                        </p>
-                        <v-btn color="primary" variant="flat" class="me-2" :prepend-icon="mdiPlus" @click="addSecurity">{{ tt('Add Security') }}</v-btn>
-                        <v-btn color="default" variant="outlined" :prepend-icon="mdiFileUploadOutline" @click="importCsv">{{ tt('Import CSV') }}</v-btn>
-                    </div>
-
-                    <template v-else-if="loading || securities.length">
-                        <!-- totals -->
-                        <!-- one flat strip of figures: no card inside the page card -->
-                        <div class="ebk-totals mb-4">
-                            <div class="ebk-total" v-for="card in totalCards" :key="card.key">
-                                <div class="text-label-medium text-medium-emphasis">{{ card.label }}</div>
-                                <v-skeleton-loader type="text" class="skeleton-no-margin mt-2" v-if="loading && !summary" />
-                                <template v-else>
-                                    <div class="ebk-numeric mt-1" :class="[card.large ? 'text-headline-small' : 'text-title-large', card.className]">
-                                        <v-icon size="18" :icon="card.icon" class="me-1" v-if="card.icon" />{{ card.value }}
-                                    </div>
-                                    <div class="text-body-small text-medium-emphasis ebk-numeric" v-if="card.sub">{{ card.sub }}</div>
-                                </template>
+    <main-page-layout>
+        <template #content>
+            <v-row class="match-height">
+                <v-col cols="12">
+                    <v-card variant="flat">
+                        <template #title>
+                            <div class="title-and-toolbar d-flex align-center flex-wrap ga-2">
+                                <span>{{ tt('Investments') }}</span>
+                                <v-btn density="compact" color="default" variant="text" class="ms-1"
+                                       :aria-label="tt('Refresh prices')" :icon="true"
+                                       :disabled="loading || refreshing || !hasRefreshableSecurities"
+                                       :loading="refreshing" @click="refreshPrices">
+                                    <template #loader>
+                                        <v-progress-circular indeterminate size="20"/>
+                                    </template>
+                                    <v-icon :icon="mdiRefresh" size="24" />
+                                    <v-tooltip activator="parent">{{ hasRefreshableSecurities ? tt('Refresh prices') : tt('No securities use an online price source') }}</v-tooltip>
+                                </v-btn>
+                                <v-spacer />
+                                <v-btn variant="text" color="default" :prepend-icon="mdiPlus" :disabled="loading" @click="addSecurity">{{ tt('Add Security') }}</v-btn>
+                                <v-btn variant="outlined" color="default" :prepend-icon="mdiFileUploadOutline" :disabled="loading" @click="importCsv">{{ tt('Import CSV') }}</v-btn>
+                                <v-btn variant="flat" color="primary" :prepend-icon="mdiPlus" :disabled="loading || !securities.length" @click="addTrade()">{{ tt('Add Trade') }}</v-btn>
                             </div>
-                        </div>
+                        </template>
 
-                        <v-alert type="warning" color="warning-strong" variant="tonal" density="compact" class="mb-3" v-if="summary && !summary.ratesAvailable">
-                            {{ tt('Exchange rates are unavailable right now, so holdings in other currencies are left out of the totals.') }}
-                        </v-alert>
-                        <v-alert type="warning" color="warning-strong" variant="tonal" density="compact" class="mb-3" v-else-if="summary && summary.unconvertedCurrencies.length">
-                            {{ tt('No exchange rate for') }} {{ summary.unconvertedCurrencies.join(', ') }}. {{ tt('These holdings are left out of the totals.') }}
-                        </v-alert>
-                        <v-alert type="warning" color="warning-strong" variant="tonal" density="compact" class="mb-3" v-if="missingPriceCount > 0">
-                            <template v-if="missingPriceCount === 1">{{ tt('One holding has no price yet, so its value and gain are not counted. Set a price or choose an online price source.') }}</template>
-                            <template v-else>{{ missingPriceCount }} {{ tt('holdings have no price yet, so their value is not counted. Set a price or choose an online price source.') }}</template>
-                        </v-alert>
+                        <v-card-text class="pt-0">
+                            <v-alert type="error" variant="tonal" class="mb-4" v-if="loadError">
+                                <div class="d-flex align-center">
+                                    <span>{{ loadError }}</span>
+                                    <v-spacer />
+                                    <v-btn variant="text" size="small" @click="reload">{{ tt('Retry') }}</v-btn>
+                                </div>
+                            </v-alert>
 
-                        <v-tabs class="mb-4" v-model="activeTab">
-                            <v-tab value="holdings">{{ tt('Holdings') }}</v-tab>
-                            <v-tab value="trades">{{ tt('Trades') }}</v-tab>
-                            <v-tab value="allocation">{{ tt('Allocation') }}</v-tab>
-                        </v-tabs>
-
-                        <v-window class="disable-tab-transition" v-model="activeTab">
-                            <!-- holdings -->
-                            <v-window-item value="holdings">
-                                <v-table class="ebk-table" density="comfortable" :hover="!loading">
-                                    <thead>
-                                    <tr>
-                                        <th>{{ tt('Security') }}</th>
-                                        <th class="text-end">{{ tt('Quantity') }}</th>
-                                        <th class="text-end">{{ tt('Average cost') }}</th>
-                                        <th class="text-end">{{ tt('Price') }}</th>
-                                        <th class="text-end">{{ tt('Value') }}</th>
-                                        <th class="text-end">{{ tt('Gain') }}</th>
-                                        <th class="text-end">{{ tt('XIRR') }}</th>
-                                        <th class="ebk-actions-col"><span class="sr-only">{{ tt('Actions') }}</span></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr :key="n" v-for="n in (loading && !summary ? [1, 2, 3, 4] : [])">
-                                        <td colspan="8"><v-skeleton-loader type="text" /></td>
-                                    </tr>
-                                    <tr v-if="!loading && summary && !summary.holdings.length">
-                                        <td colspan="8" class="text-medium-emphasis">{{ tt('No holdings yet') }}</td>
-                                    </tr>
-                                    <tr :key="holding.securityId" v-for="holding in holdings">
-                                        <td>
-                                            <div class="font-weight-medium">{{ holding.name }}</div>
-                                            <div class="text-body-small text-medium-emphasis">
-                                                {{ holding.symbol }} · {{ typeName(holding.securityType) }} · {{ holding.currency }}
-                                            </div>
-                                        </td>
-                                        <td class="text-end ebk-numeric">{{ qty(holding.quantity) }}</td>
-                                        <td class="text-end ebk-numeric">{{ isHeld(holding) ? price(holding.averageCost) : '-' }}</td>
-                                        <td class="text-end ebk-numeric">
-                                            <template v-if="holding.priceAvailable">
-                                                <div>{{ price(holding.price) }}</div>
-                                                <div class="text-body-small" :class="isStale(holding) ? 'text-warning-strong' : 'text-medium-emphasis'">
-                                                    {{ isStale(holding) ? tt('Stale') + ' · ' : '' }}{{ formatDate(holding.priceTime) }}
-                                                </div>
-                                            </template>
-                                            <v-btn size="small" variant="text" color="default" v-else-if="isHeld(holding)" @click="setPrice(holding.securityId)">{{ tt('Set price') }}</v-btn>
-                                            <span v-else>-</span>
-                                        </td>
-                                        <td class="text-end ebk-numeric">
-                                            <template v-if="holding.priceAvailable && isHeld(holding)">{{ money(holding.value, holding.currency) }}</template>
-                                            <span v-else>-</span>
-                                            <div class="text-body-small text-warning-strong" v-if="holding.warning === 'no_exchange_rate'">{{ tt('No exchange rate') }}</div>
-                                        </td>
-                                        <td class="text-end ebk-numeric">
-                                            <template v-if="holding.priceAvailable && isHeld(holding)">
-                                                <div :class="signClass(holding.unrealised)">
-                                                    <v-icon size="14" :icon="signIcon(holding.unrealised)" v-if="signIcon(holding.unrealised)" />
-                                                    {{ signedMoney(holding.unrealised, holding.currency) }}
-                                                </div>
-                                                <div class="text-body-small" :class="signClass(holding.unrealised)">{{ formatSignedPercent(holding.unrealisedPercent, false) }}</div>
-                                            </template>
-                                            <span v-else>-</span>
-                                        </td>
-                                        <td class="text-end ebk-numeric">{{ formatSignedPercent(holding.xirr, true) }}</td>
-                                        <td class="text-end">
-                                            <v-btn density="comfortable" variant="text" color="default" :icon="true" :aria-label="tt('Actions')">
-                                                <v-icon :icon="mdiDotsVertical" size="20" />
-                                                <v-menu activator="parent">
-                                                    <v-list density="compact">
-                                                        <v-list-item :prepend-icon="mdiPlus" :title="tt('Add Trade')" @click="addTrade(holding.securityId)" />
-                                                        <v-list-item :prepend-icon="mdiCurrencyUsd" :title="tt('Set price')" @click="setPrice(holding.securityId)" />
-                                                        <v-list-item :prepend-icon="mdiPencilOutline" :title="tt('Edit Security')" @click="editSecurity(holding.securityId)" />
-                                                        <v-list-item :prepend-icon="mdiDeleteOutline" :title="tt('Delete')" @click="removeSecurity(holding.securityId)" />
-                                                    </v-list>
-                                                </v-menu>
-                                            </v-btn>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </v-table>
-                                <p class="text-body-small text-medium-emphasis mt-3">
-                                    {{ tt('Average cost includes fees. Gains are unrealised and shown in each security\'s own currency; totals are converted to') }} {{ summary?.baseCurrency || '' }}.
+                            <!-- empty state -->
+                            <div class="ebk-empty text-center py-12" v-if="!loading && !loadError && !securities.length">
+                                <v-icon :icon="mdiChartLine" size="40" class="mb-3 text-medium-emphasis" />
+                                <h2 class="text-title-large mb-2">{{ tt('Track what you own') }}</h2>
+                                <p class="text-body-medium text-medium-emphasis mx-auto mb-5 ebk-empty-text">
+                                    {{ tt('Add a security and record your buys, sells and dividends, or import them from a CSV file. Holdings, gains and allocation are calculated for you.') }}
                                 </p>
-                            </v-window-item>
+                                <v-btn color="primary" variant="flat" class="me-2" :prepend-icon="mdiPlus" @click="addSecurity">{{ tt('Add Security') }}</v-btn>
+                                <v-btn color="default" variant="outlined" :prepend-icon="mdiFileUploadOutline" @click="importCsv">{{ tt('Import CSV') }}</v-btn>
+                            </div>
 
-                            <!-- trades -->
-                            <v-window-item value="trades">
-                                <v-table class="ebk-table" density="comfortable" :hover="!loading">
-                                    <thead>
-                                    <tr>
-                                        <th>{{ tt('Date') }}</th>
-                                        <th>{{ tt('Security') }}</th>
-                                        <th>{{ tt('Type') }}</th>
-                                        <th class="text-end">{{ tt('Quantity') }}</th>
-                                        <th class="text-end">{{ tt('Price') }}</th>
-                                        <th class="text-end">{{ tt('Amount') }}</th>
-                                        <th class="text-end">{{ tt('Fees') }}</th>
-                                        <th class="ebk-actions-col"><span class="sr-only">{{ tt('Actions') }}</span></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr v-if="!loading && !trades.length">
-                                        <td colspan="8" class="text-medium-emphasis">{{ tt('No trades yet') }}</td>
-                                    </tr>
-                                    <tr :key="trade.id" v-for="trade in trades">
-                                        <td class="ebk-numeric">{{ formatDate(trade.time) }}</td>
-                                        <td>
-                                            <div>{{ securityMap[trade.securityId]?.name }}</div>
-                                            <div class="text-body-small text-medium-emphasis">{{ securityMap[trade.securityId]?.symbol }}</div>
-                                        </td>
-                                        <td>{{ tradeTypeName(trade.tradeType) }}</td>
-                                        <td class="text-end ebk-numeric">{{ trade.tradeType === 3 ? '-' : qty(trade.quantity) }}</td>
-                                        <td class="text-end ebk-numeric">{{ trade.tradeType === 3 ? '-' : price(trade.price) }}</td>
-                                        <td class="text-end ebk-numeric">{{ tradeAmount(trade) }}</td>
-                                        <td class="text-end ebk-numeric">{{ trade.fees ? money(trade.fees, securityMap[trade.securityId]?.currency) : '-' }}</td>
-                                        <td class="text-end text-no-wrap">
-                                            <v-btn density="comfortable" variant="text" color="default" :icon="true" :aria-label="tt('Edit')" @click="editTrade(trade)">
-                                                <v-icon :icon="mdiPencilOutline" size="20" />
-                                                <v-tooltip activator="parent">{{ tt('Edit') }}</v-tooltip>
-                                            </v-btn>
-                                            <v-btn density="comfortable" variant="text" color="default" :icon="true" :aria-label="tt('Delete')" @click="removeTrade(trade)">
-                                                <v-icon :icon="mdiDeleteOutline" size="20" />
-                                                <v-tooltip activator="parent">{{ tt('Delete') }}</v-tooltip>
-                                            </v-btn>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </v-table>
-                            </v-window-item>
+                            <template v-else-if="loading || securities.length">
+                                <!-- totals -->
+                                <!-- one flat strip of figures: no card inside the page card -->
+                                <div class="ebk-totals mb-4">
+                                    <div class="ebk-total" v-for="card in totalCards" :key="card.key">
+                                        <div class="text-label-medium text-medium-emphasis">{{ card.label }}</div>
+                                        <v-skeleton-loader type="text" class="skeleton-no-margin mt-2" v-if="loading && !summary" />
+                                        <template v-else>
+                                            <div class="ebk-numeric mt-1" :class="[card.large ? 'text-headline-small' : 'text-title-large', card.className]">
+                                                <v-icon size="18" :icon="card.icon" class="me-1" v-if="card.icon" />{{ card.value }}
+                                            </div>
+                                            <div class="text-body-small text-medium-emphasis ebk-numeric" v-if="card.sub">{{ card.sub }}</div>
+                                        </template>
+                                    </div>
+                                </div>
 
-                            <!-- allocation -->
-                            <v-window-item value="allocation">
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <h3 class="text-title-medium mb-3">{{ tt('By type') }}</h3>
-                                        <p class="text-body-medium text-medium-emphasis" v-if="!allocationByType.length">{{ tt('Allocation appears once your holdings have prices.') }}</p>
-                                        <div class="ebk-bar-row" :key="item.key" v-for="item in allocationByType">
-                                            <div class="d-flex text-body-medium">
-                                                <span>{{ allocationTypeName(item.key) }}</span>
-                                                <v-spacer />
-                                                <span class="ebk-numeric">{{ money(item.value, summary?.baseCurrency) }} · {{ item.percent.toFixed(2) }}%</span>
-                                            </div>
-                                            <div class="ebk-bar"><div class="ebk-bar-fill" :style="{ width: item.percent + '%' }"></div></div>
-                                        </div>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <h3 class="text-title-medium mb-3">{{ tt('By currency') }}</h3>
-                                        <p class="text-body-medium text-medium-emphasis" v-if="!allocationByCurrency.length">{{ tt('Allocation appears once your holdings have prices.') }}</p>
-                                        <div class="ebk-bar-row" :key="item.key" v-for="item in allocationByCurrency">
-                                            <div class="d-flex text-body-medium">
-                                                <span>{{ item.key }}</span>
-                                                <v-spacer />
-                                                <span class="ebk-numeric">{{ money(item.value, summary?.baseCurrency) }} · {{ item.percent.toFixed(2) }}%</span>
-                                            </div>
-                                            <div class="ebk-bar"><div class="ebk-bar-fill" :style="{ width: item.percent + '%' }"></div></div>
-                                        </div>
-                                    </v-col>
-                                </v-row>
-                            </v-window-item>
-                        </v-window>
-                    </template>
-                </v-card-text>
-            </v-card>
-        </v-col>
-    </v-row>
+                                <v-alert type="warning" color="warning-strong" variant="tonal" density="compact" class="mb-3" v-if="summary && !summary.ratesAvailable">
+                                    {{ tt('Exchange rates are unavailable right now, so holdings in other currencies are left out of the totals.') }}
+                                </v-alert>
+                                <v-alert type="warning" color="warning-strong" variant="tonal" density="compact" class="mb-3" v-else-if="summary && summary.unconvertedCurrencies.length">
+                                    {{ tt('No exchange rate for') }} {{ summary.unconvertedCurrencies.join(', ') }}. {{ tt('These holdings are left out of the totals.') }}
+                                </v-alert>
+                                <v-alert type="warning" color="warning-strong" variant="tonal" density="compact" class="mb-3" v-if="missingPriceCount > 0">
+                                    <template v-if="missingPriceCount === 1">{{ tt('One holding has no price yet, so its value and gain are not counted. Set a price or choose an online price source.') }}</template>
+                                    <template v-else>{{ missingPriceCount }} {{ tt('holdings have no price yet, so their value is not counted. Set a price or choose an online price source.') }}</template>
+                                </v-alert>
+
+                                <v-tabs class="mb-4" v-model="activeTab">
+                                    <v-tab value="holdings">{{ tt('Holdings') }}</v-tab>
+                                    <v-tab value="trades">{{ tt('Trades') }}</v-tab>
+                                    <v-tab value="allocation">{{ tt('Allocation') }}</v-tab>
+                                </v-tabs>
+
+                                <v-window class="disable-tab-transition" v-model="activeTab">
+                                    <!-- holdings -->
+                                    <v-window-item value="holdings">
+                                        <v-table class="ebk-table" density="comfortable" :hover="!loading">
+                                            <thead>
+                                            <tr>
+                                                <th>{{ tt('Security') }}</th>
+                                                <th class="text-end">{{ tt('Quantity') }}</th>
+                                                <th class="text-end">{{ tt('Average cost') }}</th>
+                                                <th class="text-end">{{ tt('Price') }}</th>
+                                                <th class="text-end">{{ tt('Value') }}</th>
+                                                <th class="text-end">{{ tt('Gain') }}</th>
+                                                <th class="text-end">{{ tt('XIRR') }}</th>
+                                                <th class="ebk-actions-col"><span class="sr-only">{{ tt('Actions') }}</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr :key="n" v-for="n in (loading && !summary ? [1, 2, 3, 4] : [])">
+                                                <td colspan="8"><v-skeleton-loader type="text" /></td>
+                                            </tr>
+                                            <tr v-if="!loading && summary && !summary.holdings.length">
+                                                <td colspan="8" class="text-medium-emphasis">{{ tt('No holdings yet') }}</td>
+                                            </tr>
+                                            <tr :key="holding.securityId" v-for="holding in holdings">
+                                                <td>
+                                                    <div class="font-weight-medium">{{ holding.name }}</div>
+                                                    <div class="text-body-small text-medium-emphasis">
+                                                        {{ holding.symbol }} · {{ typeName(holding.securityType) }} · {{ holding.currency }}
+                                                    </div>
+                                                </td>
+                                                <td class="text-end ebk-numeric">{{ qty(holding.quantity) }}</td>
+                                                <td class="text-end ebk-numeric">{{ isHeld(holding) ? price(holding.averageCost) : '-' }}</td>
+                                                <td class="text-end ebk-numeric">
+                                                    <template v-if="holding.priceAvailable">
+                                                        <div>{{ price(holding.price) }}</div>
+                                                        <div class="text-body-small" :class="isStale(holding) ? 'text-warning-strong' : 'text-medium-emphasis'">
+                                                            {{ isStale(holding) ? tt('Stale') + ' · ' : '' }}{{ formatDate(holding.priceTime) }}
+                                                        </div>
+                                                    </template>
+                                                    <v-btn size="small" variant="text" color="default" v-else-if="isHeld(holding)" @click="setPrice(holding.securityId)">{{ tt('Set price') }}</v-btn>
+                                                    <span v-else>-</span>
+                                                </td>
+                                                <td class="text-end ebk-numeric">
+                                                    <template v-if="holding.priceAvailable && isHeld(holding)">{{ money(holding.value, holding.currency) }}</template>
+                                                    <span v-else>-</span>
+                                                    <div class="text-body-small text-warning-strong" v-if="holding.warning === 'no_exchange_rate'">{{ tt('No exchange rate') }}</div>
+                                                </td>
+                                                <td class="text-end ebk-numeric">
+                                                    <template v-if="holding.priceAvailable && isHeld(holding)">
+                                                        <div :class="signClass(holding.unrealised)">
+                                                            <v-icon size="14" :icon="signIcon(holding.unrealised)" v-if="signIcon(holding.unrealised)" />
+                                                            {{ signedMoney(holding.unrealised, holding.currency) }}
+                                                        </div>
+                                                        <div class="text-body-small" :class="signClass(holding.unrealised)">{{ formatSignedPercent(holding.unrealisedPercent, false) }}</div>
+                                                    </template>
+                                                    <span v-else>-</span>
+                                                </td>
+                                                <td class="text-end ebk-numeric">{{ formatSignedPercent(holding.xirr, true) }}</td>
+                                                <td class="text-end">
+                                                    <v-btn density="comfortable" variant="text" color="default" :icon="true" :aria-label="tt('Actions')">
+                                                        <v-icon :icon="mdiDotsVertical" size="20" />
+                                                        <v-menu activator="parent">
+                                                            <v-list density="compact">
+                                                                <v-list-item :prepend-icon="mdiPlus" :title="tt('Add Trade')" @click="addTrade(holding.securityId)" />
+                                                                <v-list-item :prepend-icon="mdiCurrencyUsd" :title="tt('Set price')" @click="setPrice(holding.securityId)" />
+                                                                <v-list-item :prepend-icon="mdiPencilOutline" :title="tt('Edit Security')" @click="editSecurity(holding.securityId)" />
+                                                                <v-list-item :prepend-icon="mdiDeleteOutline" :title="tt('Delete')" @click="removeSecurity(holding.securityId)" />
+                                                            </v-list>
+                                                        </v-menu>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </v-table>
+                                        <p class="text-body-small text-medium-emphasis mt-3">
+                                            {{ tt('Average cost includes fees. Gains are unrealised and shown in each security\'s own currency; totals are converted to') }} {{ displayCurrencyCode }}.
+                                        </p>
+                                    </v-window-item>
+
+                                    <!-- trades -->
+                                    <v-window-item value="trades">
+                                        <v-table class="ebk-table" density="comfortable" :hover="!loading">
+                                            <thead>
+                                            <tr>
+                                                <th>{{ tt('Date') }}</th>
+                                                <th>{{ tt('Security') }}</th>
+                                                <th>{{ tt('Type') }}</th>
+                                                <th class="text-end">{{ tt('Quantity') }}</th>
+                                                <th class="text-end">{{ tt('Price') }}</th>
+                                                <th class="text-end">{{ tt('Amount') }}</th>
+                                                <th class="text-end">{{ tt('Fees') }}</th>
+                                                <th class="ebk-actions-col"><span class="sr-only">{{ tt('Actions') }}</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-if="!loading && !trades.length">
+                                                <td colspan="8" class="text-medium-emphasis">{{ tt('No trades yet') }}</td>
+                                            </tr>
+                                            <tr :key="trade.id" v-for="trade in trades">
+                                                <td class="ebk-numeric">{{ formatDate(trade.time) }}</td>
+                                                <td>
+                                                    <div>{{ securityMap[trade.securityId]?.name }}</div>
+                                                    <div class="text-body-small text-medium-emphasis">{{ securityMap[trade.securityId]?.symbol }}</div>
+                                                </td>
+                                                <td>{{ tradeTypeName(trade.tradeType) }}</td>
+                                                <td class="text-end ebk-numeric">{{ trade.tradeType === 3 ? '-' : qty(trade.quantity) }}</td>
+                                                <td class="text-end ebk-numeric">{{ trade.tradeType === 3 ? '-' : price(trade.price) }}</td>
+                                                <td class="text-end ebk-numeric">{{ tradeAmount(trade) }}</td>
+                                                <td class="text-end ebk-numeric">{{ trade.fees ? money(trade.fees, securityMap[trade.securityId]?.currency) : '-' }}</td>
+                                                <td class="text-end text-no-wrap">
+                                                    <v-btn density="comfortable" variant="text" color="default" :icon="true" :aria-label="tt('Edit')" @click="editTrade(trade)">
+                                                        <v-icon :icon="mdiPencilOutline" size="20" />
+                                                        <v-tooltip activator="parent">{{ tt('Edit') }}</v-tooltip>
+                                                    </v-btn>
+                                                    <v-btn density="comfortable" variant="text" color="default" :icon="true" :aria-label="tt('Delete')" @click="removeTrade(trade)">
+                                                        <v-icon :icon="mdiDeleteOutline" size="20" />
+                                                        <v-tooltip activator="parent">{{ tt('Delete') }}</v-tooltip>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </v-table>
+                                    </v-window-item>
+
+                                    <!-- allocation -->
+                                    <v-window-item value="allocation">
+                                        <v-row>
+                                            <v-col cols="12" md="6">
+                                                <h3 class="text-title-medium mb-3">{{ tt('By type') }}</h3>
+                                                <p class="text-body-medium text-medium-emphasis" v-if="!allocationByType.length">{{ tt('Allocation appears once your holdings have prices.') }}</p>
+                                                <div class="ebk-bar-row" :key="item.key" v-for="item in allocationByType">
+                                                    <div class="d-flex text-body-medium">
+                                                        <span>{{ allocationTypeName(item.key) }}</span>
+                                                        <v-spacer />
+                                                        <span class="ebk-numeric">{{ baseMoney(item.value) }} · {{ item.percent.toFixed(2) }}%</span>
+                                                    </div>
+                                                    <div class="ebk-bar"><div class="ebk-bar-fill" :style="{ width: item.percent + '%' }"></div></div>
+                                                </div>
+                                            </v-col>
+                                            <v-col cols="12" md="6">
+                                                <h3 class="text-title-medium mb-3">{{ tt('By currency') }}</h3>
+                                                <p class="text-body-medium text-medium-emphasis" v-if="!allocationByCurrency.length">{{ tt('Allocation appears once your holdings have prices.') }}</p>
+                                                <div class="ebk-bar-row" :key="item.key" v-for="item in allocationByCurrency">
+                                                    <div class="d-flex text-body-medium">
+                                                        <span>{{ item.key }}</span>
+                                                        <v-spacer />
+                                                        <span class="ebk-numeric">{{ baseMoney(item.value) }} · {{ item.percent.toFixed(2) }}%</span>
+                                                    </div>
+                                                    <div class="ebk-bar"><div class="ebk-bar-fill" :style="{ width: item.percent + '%' }"></div></div>
+                                                </div>
+                                            </v-col>
+                                        </v-row>
+                                    </v-window-item>
+                                </v-window>
+                            </template>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </template>
+    </main-page-layout>
 
     <security-edit-dialog ref="securityDialog" />
     <trade-edit-dialog ref="tradeDialog" />
@@ -257,11 +261,12 @@ import { storeToRefs } from 'pinia';
 import Decimal from 'decimal.js';
 
 import { useI18n } from '@/locales/helpers.ts';
+import { useInvestmentDisplayCurrency } from '@/expbook/display-currency/investments.ts'; // Expbook
+
 
 import { useInvestmentStore } from '@/stores/investment.ts';
 import { useAccountsStore } from '@/stores/account.ts';
 import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
 import { useExchangeRatesStore } from '@/stores/exchangeRates.ts';
 
 import {
@@ -309,7 +314,6 @@ const { tt, formatAmountToLocalizedNumeralsWithCurrency, formatNumberToLocalized
 const investmentStore = useInvestmentStore();
 const accountsStore = useAccountsStore();
 const settingsStore = useSettingsStore();
-const userStore = useUserStore();
 const exchangeRatesStore = useExchangeRatesStore();
 const { securities, summary, trades, securityMap } = storeToRefs(investmentStore);
 
@@ -346,6 +350,18 @@ function qty(value: string): string {
 
 function signedMoney(minor: number, currency?: string): string {
     return withExplicitSign(money(minor, currency), minor);
+}
+
+// Expbook: totals come from the server in the profile currency; show them in the display currency.
+const { toDisplay, displayCurrencyCode } = useInvestmentDisplayCurrency();
+
+function baseMoney(minor: number): string {
+    const shown = toDisplay(minor, summary.value?.baseCurrency);
+    return shown ? money(shown.minor, shown.currency) : money(minor);
+}
+
+function signedBaseMoney(minor: number): string {
+    return withExplicitSign(baseMoney(minor), minor);
 }
 
 function signClass(minor: number): string {
@@ -402,9 +418,16 @@ const netWorth = computed<{ total: string, accounts: string }>(() => {
         return { total: '-', accounts: '' };
     }
 
-    const currency = userStore.currentUserDefaultCurrency;
+    const currency = displayCurrencyCode.value;
     const accountsNet = accountsStore.getNetAssets(settingsStore.appSettings.showAccountBalance, settingsStore.appSettings.totalAmountExcludeAccountIds);
-    const combined = combineNetWorth(accountsNet, parseBigDecimal(summary.value.totals.value));
+    const invested = toDisplay(summary.value.totals.value, summary.value.baseCurrency);
+
+    // Without a rate the investments cannot be added to the accounts, so no total is shown rather than a wrong one.
+    if (!invested || invested.currency !== currency) {
+        return { total: '-', accounts: formatAmountToLocalizedNumeralsWithCurrency(accountsNet, currency) };
+    }
+
+    const combined = combineNetWorth(accountsNet, parseBigDecimal(invested.minor));
 
     return {
         total: formatAmountToLocalizedNumeralsWithCurrency(combined, currency),
@@ -414,7 +437,6 @@ const netWorth = computed<{ total: string, accounts: string }>(() => {
 
 const totalCards = computed(() => {
     const totals = summary.value ? summary.value.totals : null;
-    const base = summary.value?.baseCurrency;
     const unrealisedPercent = totals ? unrealisedPercentOfPricedCost(totals.unrealised, totals.pricedCost) : null;
     const hasUnpriced = missingPriceCount.value > 0;
 
@@ -423,7 +445,7 @@ const totalCards = computed(() => {
             key: 'netWorth',
             label: tt('Net worth'),
             value: netWorth.value.total,
-            sub: totals ? tt('Accounts') + ' ' + netWorth.value.accounts + ' · ' + tt('Investments') + ' ' + money(totals.value, base) : '',
+            sub: totals ? tt('Accounts') + ' ' + netWorth.value.accounts + ' · ' + tt('Investments') + ' ' + baseMoney(totals.value) : '',
             large: true,
             className: '',
             icon: ''
@@ -431,8 +453,8 @@ const totalCards = computed(() => {
         {
             key: 'value',
             label: tt('Current value'),
-            value: totals ? money(totals.value, base) : '-',
-            sub: totals ? tt('Invested') + ' ' + money(totals.invested, base) : '',
+            value: totals ? baseMoney(totals.value) : '-',
+            sub: totals ? tt('Invested') + ' ' + baseMoney(totals.invested) : '',
             large: false,
             className: '',
             icon: ''
@@ -440,7 +462,7 @@ const totalCards = computed(() => {
         {
             key: 'gain',
             label: tt('Unrealised gain'),
-            value: totals ? signedMoney(totals.unrealised, base) : '-',
+            value: totals ? signedBaseMoney(totals.unrealised) : '-',
             sub: formatSignedPercent(unrealisedPercent, false) + (hasUnpriced && unrealisedPercent !== null ? ' ' + tt('on priced holdings only') : ''),
             large: false,
             className: totals ? signClass(totals.unrealised) : '',
@@ -449,8 +471,8 @@ const totalCards = computed(() => {
         {
             key: 'realised',
             label: tt('Realised gain and dividends'),
-            value: totals ? signedMoney(totals.realised + totals.dividends, base) : '-',
-            sub: totals ? tt('Dividends') + ' ' + money(totals.dividends, base) : '',
+            value: totals ? signedBaseMoney(totals.realised + totals.dividends) : '-',
+            sub: totals ? tt('Dividends') + ' ' + baseMoney(totals.dividends) : '',
             large: false,
             className: totals ? signClass(totals.realised + totals.dividends) : '',
             icon: totals ? signIcon(totals.realised + totals.dividends) : ''
